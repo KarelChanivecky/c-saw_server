@@ -96,15 +96,17 @@ void * serve_request( void * v_args ) {
     int res_handle_status = handle_req( &req, &res );
     // possibly error check?
     char * res_string = http_res_encode(&res);
-    log_action(req, res);
+    if (server_cfg.log_connections) {
+        log_action(req, res);
+    }
     dc_free((void*)&res_string);
+    dc_free((void*)&req_string);
     dc_sem_post(concurrent_conn_sem);
     return NULL;
 }
 
-void server_loop( server_config_t * server_cfg, int listen_socket_fd, sem_t * concurrent_conn_sem ) {
-    int new_conn = dc_listen( listen_socket_fd, server_cfg->max_open_conn );
-    req_thread_args_t serve_args = {
+void server_loop( server_config_t * server_cfg, int new_conn, sem_t * concurrent_conn_sem ) {
+     req_thread_args_t serve_args = {
             concurrent_conn_sem,
             new_conn,
             *server_cfg
@@ -130,9 +132,13 @@ _Noreturn int start_server( server_config_t * server_cfg ) {
     printf("Listener socket opened\n");
     bool serving = true;
     sem_t * concurrent_conn_sem = dc_sem_open( CONCURRENT_CONN_SEM, O_CREAT, 0640, server_cfg->max_concurrent_conn );
+    dc_listen( listen_socket_fd, server_cfg->max_open_conn );
     printf("Listening....\n");
     while ( serving ) {
-        server_loop( server_cfg, listen_socket_fd, concurrent_conn_sem );
+//        struct sockaddr requester;
+//        socklen_t requester_len;
+        int new_conn = accept(listen_socket_fd, NULL, NULL);
+        server_loop( server_cfg, listen_socket_fd, concurrent_conn_sem);
     }
 }
 
