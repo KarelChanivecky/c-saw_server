@@ -99,6 +99,7 @@ void * serve_request( void * v_args ) {
     if (server_cfg.log_connections) {
         log_action(req, res);
     }
+    write_res_string(conn_fd, res_string, server_cfg.write_buffer_size)
     dc_free((void*)&res_string);
     dc_free((void*)&req_string);
     dc_sem_post(concurrent_conn_sem);

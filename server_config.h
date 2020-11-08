@@ -28,6 +28,7 @@ struct server_config_t {
     char * page_404_path;
     bool concurrency_model;
 };
+
 typedef struct server_config_t server_config_t;
 
 int get_config(server_config_t * s_cfg, int argc, char ** argv);
