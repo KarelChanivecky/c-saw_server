@@ -9,6 +9,7 @@
 #include "server_driver.h"
 #include "http_req_parser.h"
 #include "handle_req.h"
+#include "http_res_encoder.h"
 
 #include <dc/unistd.h>
 #include <dc/sys/socket.h>
@@ -66,17 +67,37 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
     return req_string;
 }
 
+void write_res_string(int conn_fd, char * res_string, size_t write_buffer_size ) {
+    size_t response_len = strlen(res_string);
+    while ( 0 < response_len ) {
+        size_t bytes_written = dc_write(conn_fd, &res_string, write_buffer_size);
+        response_len -= bytes_written;
+        res_string += bytes_written;
+    }
+}
+
+void log_action(http_req_t req, http_res_t res ) {
+    printf("REQUEST:\n"); // TODO decide format of logging
+    printf("RESPONSE:\n");
+}
+
 void * serve_request( void * v_args ) {
     req_thread_args_t args = *(req_thread_args_t *) v_args;
     sem_t * concurrent_conn_sem = args.sem;
     server_config_t server_cfg = args.server_cfg;
+
     int conn_fd = args.conn_fd;
     dc_sem_wait( concurrent_conn_sem );
     char * req_string = get_request_string( conn_fd, server_cfg.read_buffer_size);
     http_req_t req;
     int req_parse_status = parse_http_req( &req, req_string );
+    // possibly error check?
     http_res_t res;
     int res_handle_status = handle_req( &req, &res );
+    // possibly error check?
+    char * res_string = http_res_encode(&res);
+    log_action(req, res);
+    dc_free((void*)&res_string);
     dc_sem_post(concurrent_conn_sem);
     return NULL;
 }
@@ -104,9 +125,12 @@ void server_loop( server_config_t * server_cfg, int listen_socket_fd, sem_t * co
 }
 
 _Noreturn int start_server( server_config_t * server_cfg ) {
+    printf("Opening listener socket\n");
     int listen_socket_fd = get_socket( server_cfg );
+    printf("Listener socket opened\n");
     bool serving = true;
     sem_t * concurrent_conn_sem = dc_sem_open( CONCURRENT_CONN_SEM, O_CREAT, 0640, server_cfg->max_concurrent_conn );
+    printf("Listening....\n");
     while ( serving ) {
         server_loop( server_cfg, listen_socket_fd, concurrent_conn_sem );
     }

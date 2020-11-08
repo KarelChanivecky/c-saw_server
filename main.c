@@ -1,6 +1,12 @@
-#include <stdio.h>
+#include "server_config.h"
+#include "server_driver.h"
+#include "stdio.h"
 
-int main() {
-    printf( "Hello, World!\n" );
-    return 0;
+int main( int argc, char ** argv ) {
+    printf("C-SAW /. SERVER\n");
+    printf("Loading configs\n");
+    server_config_t server_cfg;
+    get_config(&server_cfg, argc, argv);
+    printf("Configs loaded. Starting server.\n");
+    start_server(&server_cfg);
 }
