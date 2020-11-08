@@ -11,6 +11,17 @@
 
 #include "http_req_parser.h"
 
-int handle_req(http_req_t req);
+struct http_res_t {
+    char * body;
+};
+typedef struct http_res_t http_res_t;
+
+/**
+ * Prepares a response for a given http request.
+ * @param req the request information
+ * @param res the un-encoded response including header and body
+ * @return SUCCESS or an error code
+ */
+int handle_req(http_req_t * req, http_res_t * res);
 
 #endif //C_SAW_SERVER_HANDLE_REQ_H
