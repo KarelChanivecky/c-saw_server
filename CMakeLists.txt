@@ -7,7 +7,7 @@ include_directories(/usr/local/include)
 link_directories(/usr/local/lib)
 
 add_executable(c_saw_server server_driver.c)
-target_link_libraries(c_saw_server dc_utils dc)
+target_link_libraries(c_saw_server dc)
 target_compile_options(c_saw_server PRIVATE -Wpedantic -Wall -Wextra -fPIC)
 
 add_executable(http_req_parser http_req_parser.c)

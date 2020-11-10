@@ -25,7 +25,8 @@
 char **tokenize_string(char * req_string, const char *delim){
     int block = BLOCK;
     int current_index = 0;
-    char *token;
+
+    char *buffer;
     char **args = malloc(sizeof(char*) * block);
 
     if(!args){
@@ -33,7 +34,14 @@ char **tokenize_string(char * req_string, const char *delim){
         exit(EXIT_FAILURE);
     }
 
-    token = strtok(req_string, delim);
+    buffer = strtok(req_string, delim);
+
+    size_t buffer_len = strlen(buffer);
+
+    char *token = dc_malloc(sizeof(char) * (buffer_len + 1));
+    strncpy(token,buffer,buffer_len);
+    token[buffer_len] = '\0';
+
 
     while (token != NULL) {
 
@@ -49,7 +57,14 @@ char **tokenize_string(char * req_string, const char *delim){
             }
         }
 
-        token = strtok(NULL, delim);
+        buffer = strtok(NULL, delim);
+        if(buffer != NULL) {
+            buffer_len = strlen( buffer );
+            token = dc_malloc( sizeof( char ) * ( buffer_len + 1 ));
+            strncpy( token, buffer, buffer_len );
+            token[ buffer_len ] = '\0';
+        }else
+            token = NULL;
     }
     args[current_index] = NULL;
 
