@@ -103,6 +103,7 @@ void * serve_request( void * v_args ) {
     dc_free((void*)&res_string);
     dc_free((void*)&req_string);
     dc_sem_post(concurrent_conn_sem);
+    dc_close(args.conn_fd);
     return NULL;
 }
 
