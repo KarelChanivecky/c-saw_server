@@ -18,10 +18,11 @@
 #define THREAD false
 
 struct server_config_t {
-    uint32_t port;
+    uint16_t port;
     uint32_t sin_family; // TODO AF_INET or AF_UNIX
     uint32_t addr; // TODO INADDR_ANY in darcy's
     uint32_t max_concurrent_conn;
+    uint32_t max_open_conn;
     size_t read_buffer_size;
     bool log_connections;
     char * content_root_dir_path;
@@ -31,6 +32,6 @@ struct server_config_t {
 
 typedef struct server_config_t server_config_t;
 
-int get_config(server_config_t * s_cfg, int argc, char ** argv);
+//int get_config(server_config_t * s_cfg, int argc, char ** argv);
 
 #endif //C_SAW_SERVER_SERVER_CONFIG_H
