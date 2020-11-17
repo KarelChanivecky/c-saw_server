@@ -7,8 +7,6 @@
 
 #include "read_defaults.h"
 #include "server_config.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 void set_defaults(server_config_t * server_cfgs){
     server_cfgs->port = 80;

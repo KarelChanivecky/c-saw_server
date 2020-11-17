@@ -27,11 +27,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <errno.h>
 
 #define CONCURRENT_CONN_SEM "/queue_sem"
 #define READ_ALLOC_COEFF 8
 #define REQ_END "\r\n"
 #define SERVING true
+#define BYTES_WRITTEN_MISS_MATCH -1
+#define SUCCESS 0
 
 struct req_thread_args_t {
     sem_t * sem;
@@ -44,6 +47,15 @@ int get_socket( server_config_t * server_cfg ) {
     int listen_socket_fd;
     struct sockaddr_in addr;
     listen_socket_fd = dc_socket( server_cfg->sin_family, SOCK_STREAM, 0 );
+
+    int option = 1;
+    int sock_opt_status = setsockopt( listen_socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+                                      ( char * ) &option, sizeof( option ));
+    if ( sock_opt_status == -1 ) {
+        fprintf( stderr, "Error setting socket options!: %s", strerror(errno));
+        exit( EXIT_FAILURE );
+    }
+
     memset( &addr, 0, sizeof( struct sockaddr_in ));
     addr.sin_family = server_cfg->sin_family;
     addr.sin_port = htons( server_cfg->port );
@@ -54,7 +66,7 @@ int get_socket( server_config_t * server_cfg ) {
 
 char * get_request_string( int conn_fd, size_t buffer_size ) {
     size_t allocated_space = buffer_size * READ_ALLOC_COEFF;
-    char * req_string = malloc( sizeof( char ) * buffer_size * READ_ALLOC_COEFF );
+    char * req_string = dc_malloc( sizeof( char ) * buffer_size * READ_ALLOC_COEFF );
     char buffer[buffer_size];
     size_t total_bytes_read = 0;
 
@@ -63,8 +75,8 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
         size_t bytes_read = dc_read( conn_fd, buffer, buffer_size );
         total_bytes_read += bytes_read;
 
-        if ( 0 < allocated_space - total_bytes_read ) {
-            req_string = dc_realloc( &req_string,
+        if ( allocated_space - total_bytes_read < 0 ) {
+            req_string = dc_realloc( req_string,
                                      sizeof( char ) * allocated_space + ( buffer_size * READ_ALLOC_COEFF ));
         }
 
@@ -80,13 +92,19 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
     return req_string;
 }
 
-void write_res_string( int conn_fd, char * res_string, size_t write_buffer_size ) {
+int write_res_string( int conn_fd, char * res_string, size_t write_buffer_size ) {
     size_t response_len = strlen( res_string );
-    while ( 0 < response_len ) {
-        size_t bytes_written = dc_write( conn_fd, &res_string, write_buffer_size );
+    size_t bytes_to_write = write_buffer_size < response_len ? write_buffer_size : response_len;
+    while ( bytes_to_write ) {
+        size_t bytes_written = dc_write( conn_fd, res_string, bytes_to_write );
+        if ( bytes_written != bytes_to_write ) {
+            return BYTES_WRITTEN_MISS_MATCH;
+        }
         response_len -= bytes_written;
         res_string += bytes_written;
+        bytes_to_write = write_buffer_size < response_len ? write_buffer_size : response_len;
     }
+    return SUCCESS;
 }
 
 void * serve_request( void * v_args ) {
@@ -110,7 +128,14 @@ void * serve_request( void * v_args ) {
 //    }
 //    write_res_string(conn_fd, res_string, server_cfg.write_buffer_size);
 
-    write_res_string( conn_fd, req_string, server_cfg.write_buffer_size );
+    if (write_res_string( conn_fd, req_string, server_cfg.write_buffer_size )
+            ==
+        BYTES_WRITTEN_MISS_MATCH
+            &&
+        server_cfg.log_connections) {
+
+        fprintf(stderr, "Error writing to socket while responding %s", strerror(errno));
+    };
 
     //    free(res_string);
     free( req_string );
@@ -137,7 +162,7 @@ void server_loop( server_config_t * server_cfg, int new_conn, sem_t * concurrent
             serve_request( &serve_args );
             exit( EXIT_SUCCESS ); // CHILD EXITS!
         }
-        waitpid(pid, NULL, WNOHANG | WUNTRACED | WCONTINUED);
+        waitpid( pid, NULL, WNOHANG | WUNTRACED | WCONTINUED );
     }
 }
 
@@ -145,6 +170,10 @@ _Noreturn int start_server( server_config_t * server_cfg ) {
     printf( "Opening listener socket\n" );
     int listen_socket_fd = get_socket( server_cfg );
     printf( "Listener socket opened\n" );
+    if ( sem_unlink( CONCURRENT_CONN_SEM ) == 1 && errno != ENOENT ) {
+        fprintf( stderr, "Error unlinking semaphore! %s", strerror(errno));
+        exit( EXIT_FAILURE );
+    }
     sem_t * concurrent_conn_sem = dc_sem_open( CONCURRENT_CONN_SEM, O_CREAT, 0640, server_cfg->max_concurrent_conn );
     dc_listen( listen_socket_fd, server_cfg->max_open_conn );
     printf( "Listening....\n" );
