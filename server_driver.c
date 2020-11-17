@@ -29,6 +29,7 @@
 
 #define CONCURRENT_CONN_SEM "/queue_sem"
 #define READ_ALLOC_COEFF 8
+#define REQ_END "\r\n"
 
 struct req_thread_args_t {
     sem_t * sem;
@@ -53,17 +54,27 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
     size_t allocated_space = buffer_size * READ_ALLOC_COEFF;
     char * req_string = malloc(sizeof(char) * buffer_size * READ_ALLOC_COEFF);
     char buffer[buffer_size];
-    size_t bytes_read = read(conn_fd, buffer, buffer_size);
     size_t total_bytes_read = 0;
-    while (bytes_read != 0) {
+
+    bool reading = true;
+    while (reading) {
+        size_t bytes_read = dc_read(conn_fd, buffer, buffer_size);
         total_bytes_read += bytes_read;
+
         if ( 0 < allocated_space - total_bytes_read ) {
             req_string = dc_realloc(&req_string,
                                     sizeof(char) * allocated_space + (buffer_size * READ_ALLOC_COEFF));
         }
+
         strncat(req_string, buffer, bytes_read);
-        bytes_read = read(conn_fd, buffer, buffer_size);
+
+        char * last_chars = req_string + total_bytes_read -2;
+        if (strncmp(last_chars, REQ_END, 2) == 0) {
+            reading = false;
+        }
     }
+    req_string = dc_realloc(req_string, sizeof(char ) * (total_bytes_read + 1));
+    req_string[total_bytes_read] = 0;
     return req_string;
 }
 
@@ -74,11 +85,6 @@ void write_res_string(int conn_fd, char * res_string, size_t write_buffer_size )
         response_len -= bytes_written;
         res_string += bytes_written;
     }
-}
-
-void log_action(http_req_t req, http_res_t res ) {
-    printf("REQUEST:\n"); // TODO decide format of logging
-    printf("RESPONSE:\n");
 }
 
 void * serve_request( void * v_args ) {
@@ -109,7 +115,7 @@ void * serve_request( void * v_args ) {
 
 void server_loop( server_config_t * server_cfg, int new_conn, sem_t * concurrent_conn_sem ) {
      req_thread_args_t serve_args = {
-            concurrent_conn_sem,
+            concurrent_conn_sem,~
             new_conn,
             *server_cfg
     };
