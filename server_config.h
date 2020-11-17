@@ -24,6 +24,7 @@ struct server_config_t {
     uint32_t max_concurrent_conn;
     uint32_t max_open_conn;
     size_t read_buffer_size;
+    size_t write_buffer_size;
     bool log_connections;
     char * content_root_dir_path;
     char * page_404_path;

@@ -31,6 +31,7 @@ int read_confg_file(server_config_t * server_cfgs){
     config_lookup_int(&cfg, "max_concurrent_conn", &(server_cfgs->max_concurrent_conn));
     config_lookup_int(&cfg, "max_open_conn", &(server_cfgs->max_open_conn));
     config_lookup_int(&cfg, "read_buffer_size", &(server_cfgs->read_buffer_size));
+    config_lookup_int(&cfg, "write_buffer_size", &(server_cfgs->write_buffer_size));
     config_lookup_bool(&cfg, "log_connections", &(server_cfgs->log_connections));
     config_lookup_bool(&cfg, "concurrency_model", &(server_cfgs->concurrency_model));
     config_lookup_string(&cfg, "content_root_dir_path", &(server_cfgs->content_root_dir_path));

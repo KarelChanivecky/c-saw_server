@@ -16,6 +16,7 @@
 #include <dc/semaphore.h>
 #include "dc/pthread.h"
 #include "dc/stdlib.h"
+#include "logging.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
