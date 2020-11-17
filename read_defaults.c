@@ -11,9 +11,9 @@
 #include <stdlib.h>
 
 void set_defaults(server_config_t * server_cfgs){
-    server_cfgs->port = 8080;
-    server_cfgs->sin_family = 30;
-    server_cfgs->addr = 2020;
+    server_cfgs->port = 80;
+    server_cfgs->sin_family = 2;
+    server_cfgs->addr = 0;
     server_cfgs->max_concurrent_conn = 10;
     server_cfgs->max_open_conn = 40;
     server_cfgs->read_buffer_size = 1024;
