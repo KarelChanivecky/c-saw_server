@@ -22,10 +22,12 @@
 #define METHOD_ERROR 99
 #define URI_ERROR 999
 #define SUCCESS 0
+#define NUMBER_ZERO 0
+#define NUMBER_ONE 1
 
 char **tokenize_string(char * req_string, const char *delim){
     int block = BLOCK;
-    int current_index = 0;
+    int current_index = NUMBER_ZERO;
 
     char *buffer;
     char **args = malloc(sizeof(char*) * block);
@@ -39,7 +41,7 @@ char **tokenize_string(char * req_string, const char *delim){
 
     size_t buffer_len = strlen(buffer);
 
-    char *token = dc_malloc(sizeof(char) * (buffer_len + 1));
+    char *token = dc_malloc(sizeof(char) * (buffer_len + NUMBER_ONE));
     strncpy(token,buffer,buffer_len);
     token[buffer_len] = '\0';
 
@@ -50,7 +52,7 @@ char **tokenize_string(char * req_string, const char *delim){
         current_index++;
 
         if (current_index >= block) {
-            block += 10;
+            block += BLOCK;
             args = realloc(args, block * sizeof(char*));
             if (!args) {
                 fprintf(stderr, "realloc allocation error\n");
@@ -61,7 +63,7 @@ char **tokenize_string(char * req_string, const char *delim){
         buffer = strtok(NULL, delim);
         if(buffer != NULL) {
             buffer_len = strlen( buffer );
-            token = dc_malloc( sizeof( char ) * ( buffer_len + 1 ));
+            token = dc_malloc( sizeof( char ) * ( buffer_len + NUMBER_ONE ));
             strncpy( token, buffer, buffer_len );
             token[ buffer_len ] = '\0';
         }else
@@ -87,7 +89,7 @@ int setup_request_line(http_req_t * req, char ** parsed_request_line){
 
 
     if(parsed_request_line[1] != (void *)0){
-        if(parsed_request_line[1][0] != '/')
+        if(parsed_request_line[1][NUMBER_ZERO] != '/')
             return URI_ERROR;
         else
             req->request_URI = parsed_request_line[1];
@@ -118,7 +120,7 @@ void initialize_req(http_req_t * req){
 }
 char **tokenize_header(char * req_string, const char *delim){
     int block = BLOCK;
-    int current_index = 0;
+    int current_index = NUMBER_ZERO;
 
     char *buffer;
     char **args = malloc(sizeof(char*) * block);
@@ -143,7 +145,7 @@ char **tokenize_header(char * req_string, const char *delim){
         current_index++;
 
         if (current_index >= block) {
-            block += 10;
+            block += BLOCK;
             args = realloc(args, block * sizeof(char*));
             if (!args) {
                 fprintf(stderr, "realloc allocation error\n");
@@ -170,32 +172,32 @@ char **tokenize_header(char * req_string, const char *delim){
 }
 
 int parse_http_req(http_req_t * req, char * req_string){
-    int result = 0;
+    int result = SUCCESS;
     initialize_req(req);
     char **lines = tokenize_string(req_string, "\r\n");
 
-    char *request_line = lines[0];
+    char *request_line = lines[NUMBER_ZERO];
     char **parsed_request_line = tokenize_string(request_line, " ");
 
 
     if((result = setup_request_line(req, parsed_request_line)) != 0){
         return result;
-    }else if((strcmp(req->request_type, SIMPLE_REQUEST) == 0))
+    }else if((strcmp(req->request_type, SIMPLE_REQUEST) == NUMBER_ZERO))
         return SUCCESS;
 
-    int i = 1;
+    int i = NUMBER_ONE;
     char **parsed_headers;
     while(lines[i]){
         parsed_headers = tokenize_header(lines[i], ":");
 
-        if (strcmp(parsed_headers[0], AUTH) == 0){
-            req->authorization = parsed_headers[1];
-        }else if(strcmp(parsed_headers[0], FROM) == 0){
-            req->from = parsed_headers[1];
-        }else if(strcmp(parsed_headers[0], REFERER) == 0){
-            req->referer = parsed_headers[1];
-        }else if(strcmp(parsed_headers[0], USER_AGENT) == 0){
-            req->user_agent = parsed_headers[1];
+        if (strcmp(parsed_headers[NUMBER_ZERO], AUTH) == NUMBER_ZERO){
+            req->authorization = parsed_headers[NUMBER_ONE];
+        }else if(strcmp(parsed_headers[NUMBER_ZERO], FROM) == NUMBER_ZERO){
+            req->from = parsed_headers[NUMBER_ONE];
+        }else if(strcmp(parsed_headers[NUMBER_ZERO], REFERER) == NUMBER_ZERO){
+            req->referer = parsed_headers[NUMBER_ONE];
+        }else if(strcmp(parsed_headers[NUMBER_ZERO], USER_AGENT) == NUMBER_ZERO){
+            req->user_agent = parsed_headers[NUMBER_ONE];
         }
         i++;
     }
