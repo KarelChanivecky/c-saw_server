@@ -6,13 +6,11 @@
 #include "stdio.h"
 #include "dc/stdlib.h"
 
-
-
-
 #include "http_req_parser.h"
 
 #define BLOCK 17
 #define AUTH "Authorization"
+#define IF_MODIFIED_SINCE "If-Modified-Since"
 #define FROM "From"
 #define REFERER "Referer"
 #define USER_AGENT "User-Agent"
@@ -198,7 +196,10 @@ int parse_http_req(http_req_t * req, char * req_string){
             req->referer = parsed_headers[NUMBER_ONE];
         }else if(strcmp(parsed_headers[NUMBER_ZERO], USER_AGENT) == NUMBER_ZERO){
             req->user_agent = parsed_headers[NUMBER_ONE];
+        }else if(strcmp(parsed_headers[NUMBER_ZERO], IF_MODIFIED_SINCE) == NUMBER_ZERO){
+            req->if_modified_since = parsed_headers[NUMBER_ONE];
         }
+
         i++;
     }
 
@@ -222,6 +223,7 @@ int parse_http_req(http_req_t * req, char * req_string){
 //            printf("referer: %s\n",http_req_t.referer);
 //            printf("authorization: %s\n",http_req_t.authorization);
 //            printf("from: %s\n",http_req_t.from);
+//            printf("if modified since: %s\n",http_req_t.if_modified_since);
 //            break;
 //        case METHOD_ERROR:
 //            printf("Incorrect get method.\n");
