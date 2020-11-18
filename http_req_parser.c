@@ -207,27 +207,27 @@ int parse_http_req(http_req_t * req, char * req_string){
     return result;
 }
 
-int main(int argc, char * argv[]) {
-    struct http_req_t http_req_t;
-    char str[] ="GET / HTTP/1.1\r\nHost: localhost:8080\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0\r\nAccept-Language: en-us\r\nDNT: 1\r\nAccept-Encoding: gzip, deflate\r\n";
-    int result = parse_http_req(&http_req_t, str);
-    switch(result){
-        case 0:
-            printf("method : %s\n",http_req_t.method);
-            printf("request URI : %s\n",http_req_t.request_URI);
-            printf("protocol version : %s\n",http_req_t.protocol_version);
-            printf("user agent: %s\n",http_req_t.user_agent);
-            printf("referer: %s\n",http_req_t.referer);
-            printf("authorization: %s\n",http_req_t.authorization);
-            printf("from: %s\n",http_req_t.from);
-            break;
-        case METHOD_ERROR:
-            printf("Incorrect get method.\n");
-            break;
-        case URI_ERROR:
-            printf("BAD REQUEST_URI.\n");
-            break;
-    }
-    return 0;
-}
+//int main(int argc, char * argv[]) {
+//    struct http_req_t http_req_t;
+//    char str[] ="GET / HTTP/1.1\r\nHost: localhost:8080\r\nConnection: keep-alive\r\nUpgrade-Insecure-Requests: 1\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0\r\nAccept-Language: en-us\r\nDNT: 1\r\nAccept-Encoding: gzip, deflate\r\n";
+//    int result = parse_http_req(&http_req_t, str);
+//    switch(result){
+//        case 0:
+//            printf("method : %s\n",http_req_t.method);
+//            printf("request URI : %s\n",http_req_t.request_URI);
+//            printf("protocol version : %s\n",http_req_t.protocol_version);
+//            printf("user agent: %s\n",http_req_t.user_agent);
+//            printf("referer: %s\n",http_req_t.referer);
+//            printf("authorization: %s\n",http_req_t.authorization);
+//            printf("from: %s\n",http_req_t.from);
+//            break;
+//        case METHOD_ERROR:
+//            printf("Incorrect get method.\n");
+//            break;
+//        case URI_ERROR:
+//            printf("BAD REQUEST_URI.\n");
+//            break;
+//    }
+//    return 0;
+//}
 
