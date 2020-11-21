@@ -24,7 +24,7 @@ int read_confg_file(server_config_t * server_cfgs){
         config_destroy(&cfg);
         return(EXIT_FAILURE);
     }
-    
+
     config_lookup_int(&cfg, "port", &(server_cfgs->port));
     config_lookup_int(&cfg, "sin_family", &(server_cfgs->sin_family));
     config_lookup_int(&cfg, "addr", &(server_cfgs->addr));
@@ -37,6 +37,7 @@ int read_confg_file(server_config_t * server_cfgs){
     config_lookup_string(&cfg, "content_root_dir_path", &(server_cfgs->content_root_dir_path));
     config_lookup_string(&cfg, "page_404_path", &(server_cfgs->page_404_path));
 
+    config_destroy(&cfg);
     return EXIT_SUCCESS;
 }
 

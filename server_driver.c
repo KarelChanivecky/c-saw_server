@@ -18,7 +18,6 @@
 #include "dc/stdlib.h"
 #include "logging.h"
 
-#include <pthread.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -115,7 +114,8 @@ void * serve_request( void * v_args ) {
     int conn_fd = args.conn_fd;
     dc_sem_wait( concurrent_conn_sem );
     char * req_string = get_request_string( conn_fd, server_cfg.read_buffer_size );
-
+    log_requester(conn_fd);
+    printf("%s", req_string);
 //        http_req_t req;
 //    int req_parse_status = parse_http_req( &req, req_string );
 //     possibly error check?
@@ -139,20 +139,22 @@ void * serve_request( void * v_args ) {
 
     //    free(res_string);
     free( req_string );
+    free(v_args);
     dc_sem_post( concurrent_conn_sem );
     dc_close( args.conn_fd );
     return NULL;
 }
 
 void server_loop( server_config_t * server_cfg, int new_conn, sem_t * concurrent_conn_sem ) {
-    req_thread_args_t serve_args = {
-            concurrent_conn_sem,
-            new_conn,
-            *server_cfg
-    };
+    req_thread_args_t * serve_args = dc_malloc(sizeof(req_thread_args_t));
+    serve_args->conn_fd = new_conn;
+    serve_args->sem = concurrent_conn_sem;
+    serve_args->server_cfg = *server_cfg;
+
     if ( server_cfg->concurrency_model == THREAD ) {
         pthread_t thread;
-        dc_pthread_create( &thread, NULL, serve_request, &serve_args );
+        dc_pthread_create( &thread, NULL, serve_request, serve_args );
+        dc_pthread_detach(thread);
     } else {
         pid_t pid = fork();
         if ( pid == -1 ) {
@@ -166,7 +168,7 @@ void server_loop( server_config_t * server_cfg, int new_conn, sem_t * concurrent
     }
 }
 
-_Noreturn int start_server( server_config_t * server_cfg ) {
+_Noreturn void start_server( server_config_t * server_cfg ) {
     printf( "Opening listener socket\n" );
     int listen_socket_fd = get_socket( server_cfg );
     printf( "Listener socket opened\n" );
@@ -178,8 +180,6 @@ _Noreturn int start_server( server_config_t * server_cfg ) {
     dc_listen( listen_socket_fd, server_cfg->max_open_conn );
     printf( "Listening....\n" );
     while ( SERVING ) {
-//        struct sockaddr requester;
-//        socklen_t requester_len;
         int new_conn = accept( listen_socket_fd, NULL, NULL);
         server_loop( server_cfg, new_conn, concurrent_conn_sem );
     }

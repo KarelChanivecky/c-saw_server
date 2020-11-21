@@ -11,6 +11,6 @@
 
 #include "server_config.h"
 
-_Noreturn int start_server(server_config_t * server_cfg);
+_Noreturn void start_server(server_config_t * server_cfg);
 
 #endif //C_SAW_SERVER_SERVER_DRIVER_H
