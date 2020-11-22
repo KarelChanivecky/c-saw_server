@@ -10,19 +10,8 @@
 #define C_SAW_SERVER_HANDLE_REQ_H
 
 #include "http_req_parser.h"
+#include "http_res_type.hpp"
 
-struct http_res_t {
-    char * body;
-    char * status_line;
-    char * date;
-    char * server;
-    char * content_type;
-    char * allow;
-    char * expires;
-    char * content_length;
-    char * last_modified;
-};
-typedef struct http_res_t http_res_t;
 
 /**
  * Prepares a response for a given http request.
