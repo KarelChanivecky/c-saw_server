@@ -10,7 +10,7 @@
 #define C_SAW_SERVER_HTTP_RES_ENCODER_H
 
 #include "handle_req.h"
-#include "http_res_type.hpp"
+#include "http_res_type.h"
 
 /**
  * Encode a response struct into a string

@@ -10,7 +10,7 @@
 #define C_SAW_SERVER_HANDLE_REQ_H
 
 #include "http_req_parser.h"
-#include "http_res_type.hpp"
+#include "http_res_type.h"
 
 
 /**
