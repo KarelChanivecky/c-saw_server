@@ -60,19 +60,20 @@ char * delete_leading_whitespaces(char * line){
 bool is_valid_path(char * path){
     int forward_counter = 0;
     int back_counter = 0;
-    char **args = tokenize_string(path, "\n\0");
+    char **args = tokenize_string(path, "/\0");
     int i = 0;
     while(args[i]){
-        if(strcmp(args[i], ".."))
+        if(!strcmp(args[i], ".."))
             back_counter++;
         else
             forward_counter++;
+        i++;
     }
 
     if(back_counter > forward_counter)
         return false;
     else
-        return false;
+        return true;
 
     free(args);
 }
