@@ -87,7 +87,8 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
         }
     }
     req_string = dc_realloc( req_string, sizeof( char ) * ( total_bytes_read + 1 ));
-    req_string[total_bytes_read] = 0;
+    req_stri#define SUPPORTED_PROTOCOL"http"
+ng[total_bytes_read] = 0;
     return req_string;
 }
 
@@ -116,8 +117,8 @@ void * serve_request( void * v_args ) {
     char * req_string = get_request_string( conn_fd, server_cfg.read_buffer_size );
     log_requester(conn_fd);
     printf("%s", req_string);
-//        http_req_t req;
-//    int req_parse_status = parse_http_req( &req, req_string );
+    http_req_t req;
+    int req_parse_status = parse_http_req( &req, req_string );
 //     possibly error check?
 //    http_res_t res;
 //    int res_handle_status = handle_req( &req, &res );
