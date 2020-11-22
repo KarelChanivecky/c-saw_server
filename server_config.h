@@ -16,6 +16,8 @@
 // possible concurrency models
 #define FORK true
 #define THREAD false
+#define PIPE 0
+#define TEMP_FILE 1
 
 struct server_config_t {
     uint16_t port;
@@ -25,6 +27,7 @@ struct server_config_t {
     uint32_t max_open_conn;
     size_t read_buffer_size;
     size_t write_buffer_size;
+    int IPC_method;
     bool log_connections;
     char * content_root_dir_path;
     char * page_404_path;
