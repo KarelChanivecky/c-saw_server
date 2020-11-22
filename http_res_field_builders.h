@@ -19,6 +19,6 @@ char * make_last_modified( char * path );
 
 char * make_content_length( char * path );
 
-char * make_content_type( server_config_t server_cfg, char * path );
+char * make_content_type( char * path );
 
 #endif //C_SAW_SERVER_HTTP_RES_FIELD_BUILDERS_H

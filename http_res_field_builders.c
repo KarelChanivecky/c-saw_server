@@ -115,7 +115,7 @@ char * make_content_length( char * path ) {
 #define FILE_COMMAND_OPTIONS { "--mime-type", "-b", NULL, NULL }
 #define MAX_CONTENT_TYPE_LENGTH 255
 
-char * execute_file( int out, char * path ) {
+void execute_file( int out, char * path ) {
     char * options[] = FILE_COMMAND_OPTIONS;
     options[2] = path;
     pid_t child_pid = fork();
@@ -141,7 +141,7 @@ char * execute_file( int out, char * path ) {
     }
 }
 
-char * get_content_type( int src) {
+char * read_type( int src) {
     char content_type_buf[MAX_CONTENT_TYPE_LENGTH];
     size_t bytes_read = dc_read( src, content_type_buf, MAX_CONTENT_TYPE_LENGTH );
     char * content_type_str = ( char * ) dc_malloc( sizeof( char ) * bytes_read + 1 );
@@ -151,19 +151,19 @@ char * get_content_type( int src) {
 
 }
 
-char * get_with_PIPE(char * path) {
+char * get_content_type( char * path) {
     int fds[2];
     dc_pipe( fds );
     execute_file( fds[ 1 ], path);
-    char * content_type = get_content_type( fds[ 0 ] );
+    char * content_type = read_type( fds[ 0 ] );
     dc_close( fds[ 0 ] );
     dc_close( fds[ 1 ] );
     return content_type;
 }
 
 
-char * make_content_type( server_config_t server_cfg, char * path ) {
-    char * content_type;
+char * make_content_type( char * path ) {
+    char * content_type = get_content_type(path);
     size_t content_type_field_len = strlen(content_type) + strlen(CONTENT_TYPE_FIELD_NAME) + 2; // separator
     char * content_type_field = (char *) dc_malloc(sizeof(char ) * content_type_field_len + 1);
     strncat(content_type_field, CONTENT_TYPE_FIELD_NAME, strlen(CONTENT_TYPE_FIELD_NAME) + 1);
