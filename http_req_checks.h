@@ -9,6 +9,8 @@
 #ifndef C_SAW_SERVER_HTTP_REQ_CHECKS_H
 #define C_SAW_SERVER_HTTP_REQ_CHECKS_H
 
+// required for strptime
+#define _XOPEN_SOURCE
 
 #include "stdbool.h"
 #include "http_req_parser.h"

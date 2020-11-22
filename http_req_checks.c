@@ -6,6 +6,9 @@
  * http_res_encoder.c
  */
 
+// required for strptime
+#define _XOPEN_SOURCE
+
 #include <sys/stat.h>
 #include "stdio.h"
 #include "time.h"
@@ -39,15 +42,14 @@ bool check_modified_since( http_req_t req ) {
     stat( req.request_URI, &file_stat );
 
     struct tm since_time_tm;
-    char * matched = strptime(req.if_modified_since, HTTP_TIME_FORMAT, &since_time_tm);
-    if (matched == NULL) {
+    char * since_matched = strptime(req.if_modified_since, HTTP_TIME_FORMAT, &since_time_tm);
+    if (since_matched == NULL) {
         fprintf( stderr, "Time parsing error at check_modified_since\n");
         exit(EXIT_TIME);
     }
-
     time_t since_time = mktime(&since_time_tm);
 
-    if (since_time < file_stat.st_mtim.tv_sec) {
+    if (since_time < file_stat.st_mtime) {
         return true;
     }
     return false;
