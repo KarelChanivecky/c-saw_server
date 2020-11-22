@@ -87,8 +87,7 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
         }
     }
     req_string = dc_realloc( req_string, sizeof( char ) * ( total_bytes_read + 1 ));
-    req_stri#define SUPPORTED_PROTOCOL"http"
-ng[total_bytes_read] = 0;
+    req_string[total_bytes_read] = 0;
     return req_string;
 }
 
