@@ -64,7 +64,7 @@ char * make_status_field( int code ) {
     char code_str[4];
     sprintf( code_str, "%d", code );
 
-    strncat( status_line, HTTP_VERSION, strlen( HTTP_VERSION ));
+    strncat( status_line, HTTP_VERSION, strlen( HTTP_VERSION ) + 1);
     strncat( status_line, SP, 2 );
     strncat( status_line, code_str, 4 );
     strncat( status_line, SP, 2 );
@@ -112,12 +112,12 @@ char * make_content_length( char * path ) {
 
 #define CONTENT_TYPE_FIELD_NAME "Content-Type"
 #define FILE_COMMAND_CALL "file"
-#define FILE_COMMAND_OPTIONS { "--mime-type", "-b", NULL }
-#define IPC_FILENAME "content-type_tmp.XXXXXX"
+#define FILE_COMMAND_OPTIONS { "--mime-type", "-b", NULL, NULL }
 #define MAX_CONTENT_TYPE_LENGTH 255
 
-char * execute_file( int out ) {
+char * execute_file( int out, char * path ) {
     char * options[] = FILE_COMMAND_OPTIONS;
+    options[2] = path;
     pid_t child_pid = fork();
     if ( child_pid == 0 ) {
         dup2( out, STDOUT_FILENO );
@@ -141,7 +141,7 @@ char * execute_file( int out ) {
     }
 }
 
-char * get_content_type( int src ) {
+char * get_content_type( int src) {
     char content_type_buf[MAX_CONTENT_TYPE_LENGTH];
     size_t bytes_read = dc_read( src, content_type_buf, MAX_CONTENT_TYPE_LENGTH );
     char * content_type_str = ( char * ) dc_malloc( sizeof( char ) * bytes_read + 1 );
@@ -151,20 +151,10 @@ char * get_content_type( int src ) {
 
 }
 
-char * get_with_TEMP() {
-    char temp_filename[] = IPC_FILENAME;
-    int fd = dc_mkstemp( temp_filename );
-    execute_file( fd );
-    char * content_type = get_content_type( fd );
-    dc_close( fd );
-    dc_unlink( temp_filename );
-    return content_type;
-}
-
-char * get_with_PIPE() {
+char * get_with_PIPE(char * path) {
     int fds[2];
     dc_pipe( fds );
-    execute_file( fds[ 1 ] );
+    execute_file( fds[ 1 ], path);
     char * content_type = get_content_type( fds[ 0 ] );
     dc_close( fds[ 0 ] );
     dc_close( fds[ 1 ] );
@@ -174,14 +164,6 @@ char * get_with_PIPE() {
 
 char * make_content_type( server_config_t server_cfg, char * path ) {
     char * content_type;
-    switch ( server_cfg.IPC_method ) {
-        case TEMP_FILE:
-            content_type = get_with_TEMP();
-            break;
-        case PIPE:
-            content_type = get_with_PIPE();
-            break;
-    }
     size_t content_type_field_len = strlen(content_type) + strlen(CONTENT_TYPE_FIELD_NAME) + 2; // separator
     char * content_type_field = (char *) dc_malloc(sizeof(char ) * content_type_field_len + 1);
     strncat(content_type_field, CONTENT_TYPE_FIELD_NAME, strlen(CONTENT_TYPE_FIELD_NAME) + 1);
