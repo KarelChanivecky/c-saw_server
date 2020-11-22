@@ -7,7 +7,7 @@
 
 int main() {
     http_res_t res;
-    res.status_line = dc_malloc(sizeof(char) * 10);
+    res.status_line = NULL;
     res.date = dc_malloc(sizeof(char) * 10);
     res.server = dc_malloc(sizeof(char) * 10);
     res.allow = dc_malloc(sizeof(char) * 10);
@@ -17,7 +17,6 @@ int main() {
     res.body = dc_malloc(sizeof(char) * 10);
     res.content_type = dc_malloc(sizeof(char) * 10);
 
-    strncpy(res.status_line , "this status", 9);
     strncpy(res.content_type , "this type ", 9);
     strncpy(res.date , "this date", 9);
     strncpy(res.server , "the server", 9);
@@ -27,7 +26,6 @@ int main() {
     strncpy(res.last_modified , "the last_modified", 9);
     strncpy(res.body , "this body", 9);
 
-    res.status_line [9] = 0;
     res.server [9] = 0;
     res.date [9] = 0;
     res.allow [9] = 0;
@@ -37,7 +35,7 @@ int main() {
     res.expires [9] = 0;
     res.body [9] = 0;
 
-    char * res_string = http_res_encode(res);
+    char * res_string = http_res_encode(&res);
 
     printf("%s\n", res_string);
 
