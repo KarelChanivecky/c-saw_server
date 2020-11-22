@@ -30,6 +30,6 @@ typedef struct http_req_t http_req_t;
    the availability of methods other than GET.
  */
 int parse_http_req(http_req_t * req, char * req_string);
-
+char **tokenize_string(char * req_string, const char *delim);
 
 #endif //C_SAW_SERVER_HTTP_REQ_PARSER_H
