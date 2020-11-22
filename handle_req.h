@@ -13,6 +13,14 @@
 
 struct http_res_t {
     char * body;
+    char * status_line;
+    char * date;
+    char * server;
+    char * content_type;
+    char * allow;
+    char * expires;
+    char * content_length;
+    char * last_modified;
 };
 typedef struct http_res_t http_res_t;
 
