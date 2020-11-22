@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <fcntl.h>
 #include "http_res_encoder.h"
 #include "string.h"
 #include "stdlib.h"
@@ -126,7 +127,7 @@ void set_expires(http_res_t * res){
     char *buf;
     time_t now = time(0);
     struct tm tm = *gmtime(&now);
-    tm.tm_hour += 10;
+    tm.tm_hour += 10; //TODO get the time from config file.
     int len = strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &tm);
 
     char * expiry_date = dc_malloc(sizeof(char) * (len+ 2));
