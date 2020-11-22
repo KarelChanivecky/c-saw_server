@@ -1,6 +1,10 @@
-//
-// Created by root on 2020-11-21.
-//
+/**
+ * @since 2020-11-07
+ * @author Karel Chanivecky Garcia
+ * BCIT
+ * c_saw_server
+ * http_res_encoder.h
+ */
 
 #include "http_res_type.h"
 #include "stddef.h"

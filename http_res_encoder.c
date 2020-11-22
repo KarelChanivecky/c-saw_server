@@ -26,14 +26,16 @@ char * http_res_encode(http_res_t * res) {
     }
     char * res_string = dc_malloc(sizeof(char ) * bytes_to_allocate + 1);
 
-    strncat(res_string, res->status_line, strlen(res->status_line));
-    strncat(res_string, res->date, strlen(res->date));
-    strncat(res_string, res->server, strlen(res->server));
-    strncat(res_string, res->, strlen(res->));
-    strncat(res_string, res->, strlen(res->));
-    strncat(res_string, res->, strlen(res->));
-    strncat(res_string, res->, strlen(res->));
-    strncat(res_string, res->, strlen(res->));
-    strncat(res_string, res->, strlen(res->));
-    return NULL;
+    size_t offsets[HTTP_RES_T_FIELD_COUNT];
+    get_http_res_offsets(offsets);
+
+    for ( int i = 0; i < HTTP_RES_T_FIELD_COUNT; ++i ) {
+        char * field = (char*) res + offsets[i];
+        if (res != NULL) {
+            size_t field_len =  strlen(field);
+            strncat(res_string, field, field_len);
+            free(field);
+        }
+    }
+    return res_string;
 }
