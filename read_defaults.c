@@ -18,6 +18,8 @@ void set_defaults(server_config_t * server_cfgs){
     server_cfgs->write_buffer_size = 1024;
     server_cfgs->log_connections = 1;
     server_cfgs->concurrency_model = 1;
+    server_cfgs->expiration = 5;
+    server_cfgs->pooled = 1;
     server_cfgs->content_root_dir_path = "c-saw-server.git";
     server_cfgs->page_404_path = "myerrorpage.html";
 }

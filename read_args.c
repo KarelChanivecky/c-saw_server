@@ -8,7 +8,7 @@
 #include "read_args.h"
     
 char** get_args(int argc, char **argv){
-    char** args = calloc(10, sizeof(char*));
+    char** args = calloc(13, sizeof(char*));
     int c;
 
     static struct option long_options[] =
@@ -24,6 +24,8 @@ char** get_args(int argc, char **argv){
         {"root_dir", required_argument, 0, 'i'},
         {"page_404", required_argument, 0, 'j'},
         {"write_buffer_size", required_argument, 0, 'k'},
+        {"expire", required_argument, 0, 'l'},
+        {"pooled", required_argument, 0, 'm'},
         {0, 0, 0, 0}
     };
 
@@ -70,6 +72,12 @@ char** get_args(int argc, char **argv){
                 break;
             case 'k':
                 args[10] = optarg;
+                break;
+            case 'l':
+                args[11] = optarg;
+                break;
+            case 'm':
+                args[12] = optarg;
                 break;
            case '?':
 //                    fprintf (stderr, "Option -%c requires an argument.\n", optopt);

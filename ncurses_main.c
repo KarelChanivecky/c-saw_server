@@ -5,6 +5,10 @@
 //  Created by Gurden Angi on 2020-11-11.
 //
 
+#include <stdio.h>
+#include <curses.h>
+#include <string.h>
+
 int main(){
     initscr();
     cbreak();
@@ -32,7 +36,7 @@ int main(){
     
     keypad(menuwin, true);
     
-    char* choices[10] =
+    char* choices[11] =
     {
         "port: ",
         "sin family: ",
@@ -40,39 +44,109 @@ int main(){
         "maximum concurrent connections: ",
         "maximum open connections: ",
         "read buffer size: ",
+        "write buffer size: ",
         "log connections: ",
         "concurrency model: ",
         "content root directory: ",
-        "error 404 page: ",
-        
+        "error 404 page: "
     };
+    
+    int positions[11];
+    for (int index = 0; index < 11; index++) {
+        positions[index] = strlen(choices[index]) + 1;
+    }
+    
     int choice;
     int highlight = 0;
     
+    for(int i = 0; i < 11; i++){
+        mvwprintw(menuwin, i+1, 1, choices[i]);
+    }
+    
+    int pos = 0;
+    wmove(menuwin, pos + 1, positions[pos]);
+    
     while(1){
-        for(int i = 0; i < 10; i++){
-            if(i==highlight)
-                wattron(menuwin, A_REVERSE);
-            mvwprintw(menuwin, i+1, 1, choices[i]);
-            wattroff(menuwin, A_REVERSE);
-        }
+
         choice = wgetch(menuwin);
-        
+        int moved = 0;
         switch (choice) {
             case KEY_UP:
-                highlight--;
-                if (highlight == -1) {
-                    highlight = 0;
+                pos--;
+                moved = 1;
+                if (pos == -1) {
+                    pos = 0;
                 }
                 break;
             case KEY_DOWN:
-                highlight++;
-                if (highlight == 10) {
-                    highlight = 9;
+                pos++;
+                moved = 1;
+                if (pos == 11) {
+                    pos = 10;
                 }
                 break;
             default:
                 break;
+        }
+        
+        wmove(menuwin, pos + 1, positions[pos]);
+        if (moved) {
+            continue;
+        }
+        int move_pos = positions[pos];
+        while (1) {
+            int ch = wgetch(menuwin);
+            
+            if (ch == KEY_UP) {
+                pos--;
+                moved = 1;
+                move_pos = positions[pos];
+                if (pos == -1) {
+                    pos = 0;
+                }
+            }
+            if (ch == KEY_DOWN) {
+                pos++;
+                moved = 1;
+                move_pos = positions[pos];
+                if (pos == 11) {
+                    pos = 10;
+                }
+            }
+            
+            wmove(menuwin, pos + 1, move_pos++);
+            if (moved) {
+                break;
+            }
+            if (ch == 127 || ch == 8) {
+                if (move_pos == positions[pos]+1) {
+                    continue;
+                }
+                --move_pos;
+                wmove(menuwin, pos + 1, --move_pos);
+                waddch(menuwin, ' ');
+                wmove(menuwin, pos + 1, move_pos);
+                wrefresh(menuwin);
+                continue;
+            }
+            int moved_horiz = 0;
+            if (ch == KEY_LEFT) {
+                move_pos--;
+                moved_horiz = 1;
+                if (move_pos == positions[pos]+1) {
+                    move_pos++;
+                }
+            }
+            if (ch == KEY_RIGHT) {
+                move_pos++;
+                moved_horiz = 1;
+                if (move_pos == width-1) {
+                    move_pos--;
+                }
+            }
+            
+            
+            waddch(menuwin, ch);
         }
         if(choice == 10) //user pressed enter
             break;
@@ -80,11 +154,7 @@ int main(){
     
     printw("Your choice was: %s", choices[highlight]);
     
-//    int c = wgetch(inputwin);
-//    if(c == KEY_UP){
-//        mvwprintw(inputwin, 1, 1, "You pressed up!");
-//        wrefresh(inputwin);
-//    }
+
     
     getch();
     endwin();
@@ -92,6 +162,34 @@ int main(){
     
     return 0;
 }
+
+//        for(int i = 0; i < 10; i++){
+//            if(i==highlight)
+//                wattron(menuwin, A_REVERSE);
+//            mvwprintw(menuwin, i+1, 1, choices[i]);
+//            wattroff(menuwin, A_REVERSE);
+//        }
+
+
+//                highlight--;
+//                if (highlight == -1) {
+//                    highlight = 0;
+//                }
+
+
+//                highlight++;
+//                if (highlight == 11) {
+//                    highlight = 10;
+//                }
+
+
+//    int c = wgetch(inputwin);
+//    if(c == KEY_UP){
+//        mvwprintw(inputwin, 1, 1, "You pressed up!");
+//        wrefresh(inputwin);
+//    }
+
+
 
 //    int y, x, yBeg, xBeg, yMax, xMax;
 //

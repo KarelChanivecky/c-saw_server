@@ -19,7 +19,7 @@ int get_config( server_config_t * server_cfgs, int argc, char ** argv ) {
     read_confg_file( server_cfgs );
 
     char ** args = get_args( argc, argv );
-    for ( int i = 0; i < 10; i++ )
+    for ( int i = 0; i < 13; i++ )
         if ( args[i] != NULL) {
             switch ( i ) {
                 case 0:
@@ -53,7 +53,13 @@ int get_config( server_config_t * server_cfgs, int argc, char ** argv ) {
                     server_cfgs->page_404_path = args[i];
                     break;
                 case 10:
-                    server_cfgs->page_404_path = args[i];
+                    server_cfgs->write_buffer_size = atoi( args[i] );
+                    break;
+                case 11:
+                    server_cfgs->expiration = atoi( args[i] );
+                    break;
+                case 12:
+                    server_cfgs->pooled = atoi( args[i] );
                     break;
 
                 default:

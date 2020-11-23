@@ -36,6 +36,8 @@ int read_confg_file(server_config_t * server_cfgs){
     config_lookup_bool(&cfg, "concurrency_model", &(server_cfgs->concurrency_model));
     config_lookup_string(&cfg, "content_root_dir_path", &(server_cfgs->content_root_dir_path));
     config_lookup_string(&cfg, "page_404_path", &(server_cfgs->page_404_path));
+    config_lookup_string(&cfg, "expiration_time", &(server_cfgs->expiration));
+    config_lookup_string(&cfg, "pooled", &(server_cfgs->pooled));
 
     config_destroy(&cfg);
     return EXIT_SUCCESS;

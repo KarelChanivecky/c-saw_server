@@ -25,6 +25,7 @@ struct server_config_t {
     uint32_t addr; // TODO INADDR_ANY in darcy's
     uint32_t max_concurrent_conn;
     uint32_t max_open_conn;
+    uint32_t expiration;
     size_t read_buffer_size;
     size_t write_buffer_size;
     int IPC_method;
@@ -32,6 +33,7 @@ struct server_config_t {
     char * content_root_dir_path;
     char * page_404_path;
     bool concurrency_model;
+    bool pooled;
 };
 
 typedef struct server_config_t server_config_t;
