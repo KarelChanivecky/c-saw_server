@@ -78,13 +78,13 @@ bool is_valid_path(char * path){
             forward_counter++;
         i++;
     }
-
+    free(args);
     if(back_counter > forward_counter)
         return false;
     else
         return true;
 
-    free(args);
+
 }
 
 bool is_simple_req(char * request_type){
