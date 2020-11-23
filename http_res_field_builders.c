@@ -202,11 +202,26 @@ char * delete_leading_whitespaces(char * line){
         line++;
     return line;
 }
-
+/**
+ * This function is only responsible for checking if the path requested in http request goes beyond the scope of root directory.
+ * @param path
+ * @return
+ */
 bool is_valid_path(char * path){
+
+    bool is = false;
     int forward_counter = 0;
     int back_counter = 0;
-    char **args = tokenize_string(path, "/\0", BLOCK);
+
+    int len = strlen(path);
+    char * buf = path;
+
+    if(path[len-1] == '/'){
+        buf = malloc(sizeof(char *) * (len + 11));
+        strcpy(buf, path);
+        strcat(buf, "index.html");
+    }
+    char **args = tokenize_string(buf, "/\0", BLOCK);
     int i = 0;
     while(args[i]){
         if(!strcmp(args[i], ".."))
@@ -216,10 +231,11 @@ bool is_valid_path(char * path){
         i++;
     }
     free(args);
+    free(buf);
     if(back_counter > forward_counter)
-        return false;
+        is = false;
     else
-        return true;
+        is = true;
 
 }
 
@@ -315,12 +331,64 @@ void set_expires(http_res_t * res, double min){
     free(expiry_date);
 }
 
-bool file_exists(char * path){
-    return true;
+bool file_exists(char * path, char * root){
+    bool is_true = false;
+    int root_len = strlen(root);
+    int path_len = strlen(path);
+    char * buf_path = malloc(sizeof(char *) * (root_len + path_len));
+    char *buf_root = malloc(sizeof(char *) * (root_len));
+
+    if(root[root_len - 1] == '/'){
+        strncpy(buf_root, root, root_len-1);
+        buf_path = buf_root;
+        strcat(buf_path, path);
+    }
+    printf("path: %s", buf_path);
+    int fd = open(buf_path, O_RDONLY);
+    if(fd == -1)
+        is_true = false;
+    else is_true = true;
+    free(buf_path);
+    return is_true;
+}
+char *create_path(char * path, char * root){
+    int root_len = strlen(root);
+    int path_len = strlen(path);
+    char * buf_path = malloc(sizeof(char *) * (root_len + path_len));
+    char *buf_root = malloc(sizeof(char *) * (root_len));
+
+    if(root[root_len - 1] == '/'){
+        strncpy(buf_root, root, root_len-1);
+        buf_path = buf_root;
+        strcat(buf_path, path);
+    }
+    printf("path: %s", buf_path);
+    int fd = open(buf_path, O_RDONLY);
+
+
+    return buf_path;
 }
 
-bool file_modified_after_requested_if_moddified_date(char * path, char * if_mod_date){
+bool compare_dates(char * last_mod_date, char * if_mod_date){
+    return true;
+}
+bool file_modified_after_requested_if_moddified_date(char * path, char *root, char * if_mod_date){
+    bool is_modified = false;
+    char buf[DATE_BLOCK];
+    struct stat file_stat;
+    char * buf_path = create_path(path, root);
+    stat(buf_path, &file_stat);
+    struct tm last_modified_tm;
+    gmtime_r( &file_stat.st_mtim.tv_sec, &last_modified_tm );
 
+    int len = strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &last_modified_tm);
+
+    char * last_modified_date = malloc(sizeof(char) * (len+ 2));
+    strcpy(last_modified_date, buf);
+
+    is_modified = compare_dates(last_modified_date, if_mod_date);
+
+    return is_modified;
 }
 
 bool prepare_common_headers(http_res_t * res){

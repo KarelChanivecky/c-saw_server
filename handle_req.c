@@ -28,9 +28,9 @@ void initialize_res(http_res_t *res){
 }
 
 int prepare_get_response(http_req_t * req, http_res_t * res, server_config_t * config){
-    if(is_valid_path(req->request_URI)) //TODO this function is empty for now.
-        if(file_exists(req->request_URI)) {  //TODO this function is empty for now.
-            if(file_modified_after_requested_if_moddified_date(req->request_URI, req->if_modified_since)){ //TODO this function is empty for now.
+    if(is_valid_path(req->request_URI))
+        if(file_exists(req->request_URI, config->content_root_dir_path)) {
+            if(file_modified_after_requested_if_moddified_date(req->request_URI, req->if_modified_since, config->content_root_dir_path)){ //TODO implement compare_dates func.
                 res->status_line = make_status_field( 200 );
                 prepare_entity_body(req->request_URI, res);
                 res->last_modified = make_last_modified(req->request_URI);
@@ -62,9 +62,9 @@ int prepare_get_response(http_req_t * req, http_res_t * res, server_config_t * c
 }
 
 int prepare_head_response(http_req_t * req, http_res_t * res, server_config_t * config){
-    if(is_valid_path(req->request_URI)) //TODO this function is empty for now.
-        if(file_exists(req->request_URI)) {  //TODO this function is empty for now.
-            if(file_modified_after_requested_if_moddified_date(req->request_URI, req->if_modified_since)){ //TODO this function is empty for now.
+    if(is_valid_path(req->request_URI))
+        if(file_exists(req->request_URI, config->content_root_dir_path)) {
+            if(file_modified_after_requested_if_moddified_date(req->request_URI, req->if_modified_since, config->content_root_dir_path)){ //TODO implement compare_dates func.
                 res->status_line = make_status_field( 200 );
                 res->last_modified = make_last_modified(req->request_URI);
                 res->content_length = make_content_length(req->request_URI);
