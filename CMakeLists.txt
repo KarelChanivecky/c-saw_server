@@ -7,6 +7,7 @@ add_library(pooled_async SHARED
         backbone/async_serving_v2.c
         backbone/async_threading.c
         backbone/async_process.c)
+target_link_libraries(pooled_async dc_utils)
 target_compile_options(pooled_async PRIVATE -Wpedantic -Wall -Wextra -fPIC)
 
 add_library(spawned_async SHARED backbone/async_serving_v1.c)
@@ -27,7 +28,6 @@ add_executable(c_saw_server
         http_req_checks.c
         http_res_field_builders.c
         backbone/logging.c
-        backbone/async_serving_v1.c
         backbone/server_driver.c
         backbone/serve_request.c)
 
@@ -35,7 +35,8 @@ target_link_libraries(c_saw_server pthread dc_utils dc config m pooled_async spa
 target_compile_options(c_saw_server PRIVATE -Wpedantic -Wall -Wextra -fPIC)
 
 add_executable(test_http_res_encoder http_res_encoder.c http_res_encoder.h http_res_type.c http_res_type.h
-        tests/test_http_res_encode.c)
+        tests/test_http_res_encode.c
+        http_req_parser.c)
 
 target_link_libraries(test_http_res_encoder pthread dc)
 target_compile_options(test_http_res_encoder PRIVATE -Wpedantic -Wall -Wextra -fPIC)

@@ -15,7 +15,7 @@ async_handler_args * make_process( async_configs * async_cfg, async_func_t);
 
 int process_get_req_fd( int argc, ...);
 
-void process_put_req_fd( int conn_fd, ...);
+void process_put_req_fd( int conn_fd, async_configs * async_cfg);
 
 
 #endif //C_SAW_SERVER_ASYNC_PROCESS_H

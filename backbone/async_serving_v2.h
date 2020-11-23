@@ -24,16 +24,18 @@ struct async_handler_args {
     int * free_threads;
     sem_t * concurrent_conn_sem;
     sem_t * req_sem;
+    sem_t * listening_pass_fd_sem;
     dlinked_list * req_queue;
     server_config_t * server_cfg;
 };
-
 typedef struct async_handler_args async_handler_args;
+
 struct async_configs {
     int (*get_req_fd)( int, ...);
     int * free_threads;
-    sem_t * req_sem;
+    sem_t * req_avail_sem;
     sem_t * concurrent_conn_sem;
+    sem_t * listening_pass_fd_sem;
     dlinked_list * req_queue;
     server_config_t * server_cfg;
 };

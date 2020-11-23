@@ -10,25 +10,18 @@
 #include "server_driver.h"
 
 // changing this include should change the behaviour of the serve method
-#include "async_serving_v1.h"
-//#include "async_serving_v2.h"
+//#include "async_serving_v1.h"
+#include "async_serving_v2.h"
 
 
 #include "../handle_req.h"
 
 #include <dc/sys/socket.h>
-#include <dc/semaphore.h>
-#include "dc/pthread.h"
-#include "dc/stdlib.h"
 #include "logging.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
-#include <semaphore.h>
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
 
@@ -53,10 +46,7 @@ int get_socket( server_config_t * server_cfg ) {
     return listen_socket_fd;
 }
 
-
-
-
-_Noreturn void start_server( server_config_t * server_cfg ) {
+void start_server( server_config_t * server_cfg ) {
     printf( "Opening listener socket\n" );
     int listen_socket_fd = get_socket( server_cfg );
     printf( "Listener socket opened\n" );

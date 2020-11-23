@@ -11,12 +11,10 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <fcntl.h>
 #include "http_res_encoder.h"
 #include "string.h"
 #include "stdlib.h"
 #include "ctype.h"
-#include "stdio.h"
 #include "http_req_parser.h"
 
 #define BLOCK 17
@@ -79,12 +77,13 @@ bool is_valid_path(char * path){
         i++;
     }
 
-    if(back_counter > forward_counter)
-        return false;
-    else
-        return true;
-
     free(args);
+    if(back_counter > forward_counter) {
+        return false;
+    }
+    else {
+        return true;
+    }
 }
 
 bool is_simple_req(char * request_type){

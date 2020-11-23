@@ -15,39 +15,35 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <dc/pthread.h>
-#include "stdint.h"
 
-#define VOIDP_TO_INT(v) (int)(uintptr_t)(v)
 
-// credits: https://stackoverflow.com/questions/22751762/how-to-make-compiler-not-show-int-to-void-pointer-cast-warnings
-#define INT_TO_VOIDP(i) (void*)(uintptr_t)(i)
-
-void thread_put_req_fd( int conn_fd, ...) {
-    va_list args;
-    dlinked_list * req_queue;
-
-    va_start(args, conn_fd);
-    req_queue = va_arg (args, dlinked_list *);
-
-    dlinked_push( req_queue, INT_TO_VOIDP( conn_fd) );
+void thread_put_req_fd( int conn_fd, async_configs * async_cfg ) {
+    dlinked_list * req_queue = async_cfg->req_queue;
+    int * fd = ( int * ) dc_malloc( sizeof( int ));
+    *fd = conn_fd;
+    dlinked_push( req_queue, fd );
 }
 
-int thread_get_conn_fd(int argc, ...) {
+int thread_get_conn_fd( int argc, ... ) {
     va_list args;
     async_handler_args * handler_args;
-    va_start(args, argc);
-    handler_args = va_arg (args, async_handler_args *);
-    return VOIDP_TO_INT( dlinked_pop_head( handler_args->req_queue));
+    va_start( args, argc );
+    handler_args = ( async_handler_args * ) va_arg ( args, void * );
+    int * fd_p = ( int * ) dlinked_pop_head( handler_args->req_queue );
+    int fd = *fd_p;
+    free( fd_p );
+    return fd;
 }
 
-async_handler_args * make_thread( async_configs * async_cfg, async_func_t async_func) {
-    async_handler_args * args = (async_handler_args*) dc_malloc( sizeof(async_handler_args));
+async_handler_args * make_thread( async_configs * async_cfg, async_func_t async_func ) {
+    async_handler_args * args = ( async_handler_args * ) dc_malloc( sizeof( async_handler_args ));
     args->get_req_fd = async_cfg->get_req_fd;
     args->free_threads = async_cfg->free_threads;
     args->concurrent_conn_sem = async_cfg->concurrent_conn_sem;
-    args->req_sem = async_cfg->req_sem;
+    args->req_sem = async_cfg->req_avail_sem;
     args->server_cfg = async_cfg->server_cfg;
-    args->req_queue = NULL;
-    dc_pthread_create(&args->id.t, 0, async_func, args);
+    args->req_queue = async_cfg->req_queue;
+    args->listening_pass_fd_sem = NULL;
+    dc_pthread_create( &args->id.t, 0, async_func, args );
     return args;
 }

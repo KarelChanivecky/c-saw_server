@@ -14,7 +14,7 @@
 
 #include "async_serving_v2.h"
 
-void thread_put_req_fd( int conn_fd, ...);
+void thread_put_req_fd( int conn_fd, async_configs * async_cfg);
 
 int thread_get_conn_fd(int argc, ...);
 

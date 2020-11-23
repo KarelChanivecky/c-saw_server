@@ -18,5 +18,12 @@
 #define EXIT_EXEC -4
 #define EXIT_TIME -5
 #define EXIT_PROC_MSG -6
+#define EXIT_SOCK_BIND -7
+#define EXIT_SOCK_LISTEN -8
+#define EXIT_SOCK_ACCEPT -9
+#define EXIT_SOCK_CREATE -10
+#define EXIT_SOCK_CONNECT -10
+
+
 
 #endif //C_SAW_SERVER_RETURN_CODES_H
