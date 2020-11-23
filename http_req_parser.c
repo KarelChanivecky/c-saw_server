@@ -16,7 +16,6 @@
 #define SIMPLE_REQUEST "Simple-Request"
 #define FULL_REQUEST "Full-Request"
 #define DEFAULT_REQ_URI "/"
-#define METHOD_ERROR 99
 #define URI_ERROR 999
 #define SUCCESS 0
 #define NUMBER_ZERO 0
