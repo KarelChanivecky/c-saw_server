@@ -1,18 +1,15 @@
-//
-// Created by animesh on 2020-11-07.
-//
 #include <string.h>
 #include <stdlib.h>
 #include "stdio.h"
 #include "dc/stdlib.h"
 
-
-
-
 #include "http_req_parser.h"
 
-#define BLOCK 17
+#define BLOCK 10
+#define BLOCK_FOR_HEADERS 2
+#define BLOCK_FOR_REQUEST_LINE 17
 #define AUTH "Authorization"
+#define IF_MODIFIED_SINCE "If-Modified-Since"
 #define FROM "From"
 #define REFERER "Referer"
 #define USER_AGENT "User-Agent"
@@ -20,19 +17,24 @@
 #define FULL_REQUEST "Full-Request"
 #define DEFAULT_REQ_URI "/"
 #define URI_ERROR 999
+#define SUCCESS 0
+#define NUMBER_ZERO 0
+#define NUMBER_ONE 1
 
-char **tokenize_string(char * req_string, const char *delim){
-    int block = BLOCK;
-    int current_index = 0;
-    char *token;
-    char **args = malloc(sizeof(char*) * block);
+char **tokenize_string(char * req_string, const char *delim, int i){
+    int block = i;
+    int current_index = NUMBER_ZERO;
 
-    if(!args){
-        fprintf(stderr, "malloc allocation error\n");
-        exit(EXIT_FAILURE);
-    }
+    char *buffer;
+    char **args = dc_malloc(sizeof(char*) * block);
 
-    token = strtok(req_string, delim);
+    buffer = strtok(req_string, delim);
+
+    size_t buffer_len = strlen(buffer);
+
+    char *token = dc_malloc(sizeof(char) * (buffer_len + NUMBER_ONE));
+    strncpy(token,buffer,buffer_len);
+    token[buffer_len] = '\0';
 
     while (token != NULL) {
 
@@ -40,7 +42,7 @@ char **tokenize_string(char * req_string, const char *delim){
         current_index++;
 
         if (current_index >= block) {
-            block += 10;
+            block += BLOCK;
             args = realloc(args, block * sizeof(char*));
             if (!args) {
                 fprintf(stderr, "realloc allocation error\n");
@@ -48,27 +50,72 @@ char **tokenize_string(char * req_string, const char *delim){
             }
         }
 
-        token = strtok(NULL, delim);
+        buffer = strtok(NULL, delim);
+        if(buffer != NULL) {
+            buffer_len = strlen( buffer );
+            token = dc_malloc( sizeof( char ) * ( buffer_len + NUMBER_ONE ));
+            strncpy( token, buffer, buffer_len );
+            token[ buffer_len ] = '\0';
+        }else
+            token = NULL;
     }
     args[current_index] = NULL;
+
+    free(buffer);
+    free(token);
+
+    return args;
+}
+
+char **dynamic_tokenize_req(char * req){
+    int index = 0;
+    int block = BLOCK;
+    char **args = dc_malloc(sizeof(char*) * block);
+    size_t line_len = strcspn(req, "\r\n");
+    char *token = dc_malloc(sizeof(char) * (line_len + NUMBER_ONE));
+    memcpy(token, req, line_len);
+    token[line_len] = '\0';
+
+    while(token != NULL){
+        args[index++] = token;
+        if (index >= block) {
+            block += BLOCK;
+            args = realloc(args, block * sizeof(char*));
+            if (!args) {
+                fprintf(stderr, "realloc allocation error\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        req += line_len + 2;
+        line_len = strcspn(req, "\r\n");
+        if(line_len == 0)
+            break;
+        else {
+            token = dc_malloc( sizeof( char ) * ( line_len + NUMBER_ONE ));
+            memcpy( token, req, line_len );
+            token[ line_len ] = '\0';
+        }
+    }
+
+    free(token);
 
     return args;
 }
 
 int setup_request_line(http_req_t * req, char ** parsed_request_line){
-    int i = 0;
-    if((strcmp(parsed_request_line[0], "GET") == 0) || (strcmp(parsed_request_line[0], "HEAD") == 0)){
-        req->method = parsed_request_line[0];
-    }else{
-        i = METHOD_ERROR;
-    }
-
+    int i = SUCCESS;
+//    if((strcmp(parsed_request_line[0], "GET") == 0) || (strcmp(parsed_request_line[0], "HEAD") == 0)){
+//        req->method = parsed_request_line[0];
+//    }else{
+//        return METHOD_ERROR;
+//    }
+    req->method = parsed_request_line[0];
     req->request_URI = DEFAULT_REQ_URI;
 
 
     if(parsed_request_line[1] != (void *)0){
-        char * uri = parsed_request_line[1];
-        if(uri[0] != '/')
+        if(parsed_request_line[1][NUMBER_ZERO] != '/')
             return URI_ERROR;
         else
             req->request_URI = parsed_request_line[1];
@@ -97,40 +144,94 @@ void initialize_req(http_req_t * req){
     req->referer = NULL;
     req->user_agent = NULL;
 }
+char **tokenize_header(char * req_string, const char *delim){
+    int block = BLOCK_FOR_HEADERS;
+    int current_index = NUMBER_ZERO;
+
+    char *buffer;
+    char **args = dc_malloc(sizeof(char*) * block);
+
+
+    buffer = strtok(req_string, delim);
+
+    size_t buffer_len = strlen(buffer);
+
+    char *token = dc_malloc(sizeof(char) * (buffer_len + 1));
+    strncpy(token,buffer,buffer_len);
+    token[buffer_len] = '\0';
+
+
+    while (token != NULL) {
+
+        args[current_index] = token;
+        current_index++;
+
+        if (current_index >= block) {
+            block += BLOCK;
+            args = realloc(args, block * sizeof(char*));
+            if (!args) {
+                fprintf(stderr, "realloc allocation error\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        buffer = strtok(NULL, "\0");
+        if(buffer != NULL) {
+            buffer_len = strlen( buffer );
+            token = dc_malloc( sizeof( char ) * ( buffer_len + 1 ));
+            strncpy( token, buffer, buffer_len );
+            token[ buffer_len ] = '\0';
+        }else
+            token = NULL;
+    }
+    args[current_index] = NULL;
+
+    free(buffer);
+    free(token);
+
+    return args;
+
+}
+
 
 
 int parse_http_req(http_req_t * req, char * req_string){
-    int result = 0;
+    int result = SUCCESS;
     initialize_req(req);
-    char **lines = tokenize_string(req_string, "\n");
-
-    char *request_line = lines[0];
-    char **parsed_request_line = tokenize_string(request_line, " ");
+    char **lines  =  dynamic_tokenize_req(req_string);
+    char *request_line = lines[NUMBER_ZERO];
+    char **parsed_request_line = tokenize_string(request_line, " ", BLOCK_FOR_REQUEST_LINE);
 
 
     if((result = setup_request_line(req, parsed_request_line)) != 0){
         return result;
-    }
+    }else if((strcmp(req->request_type, SIMPLE_REQUEST) == NUMBER_ZERO))
+        return SUCCESS;
 
-    int i = 1;
+    int i = NUMBER_ONE;
+    char **parsed_headers;
     while(lines[i]){
-        char *headers = lines[i];
-        char **parsed_headers = tokenize_string(headers, ":");
+        parsed_headers = tokenize_header(lines[i], ":");
 
-        char *header = parsed_headers[0];
-        char *value = parsed_headers[1];
-
-        if (strcmp(header, AUTH) == 0){
-            req->authorization = parsed_headers[1];
-        }else if(strcmp(header, FROM) == 0){
-            req->from = parsed_headers[1];
-        }else if(strcmp(header, REFERER) == 0){
-            req->referer = parsed_headers[1];
-        }else if(strcmp(header, USER_AGENT) == 0){
-            req->user_agent = parsed_headers[1];
+        if (strcmp(parsed_headers[NUMBER_ZERO], AUTH) == NUMBER_ZERO){
+            req->authorization = parsed_headers[NUMBER_ONE];
+        }else if(strcmp(parsed_headers[NUMBER_ZERO], FROM) == NUMBER_ZERO){
+            req->from = parsed_headers[NUMBER_ONE];
+        }else if(strcmp(parsed_headers[NUMBER_ZERO], REFERER) == NUMBER_ZERO){
+            req->referer = parsed_headers[NUMBER_ONE];
+        }else if(strcmp(parsed_headers[NUMBER_ZERO], USER_AGENT) == NUMBER_ZERO){
+            req->user_agent = parsed_headers[NUMBER_ONE];
+        }else if(strcmp(parsed_headers[NUMBER_ZERO], IF_MODIFIED_SINCE) == NUMBER_ZERO){
+            req->if_modified_since = parsed_headers[NUMBER_ONE];
         }
+
         i++;
     }
+
+    free(parsed_headers);
+    free(parsed_request_line );
+    free(request_line);
+    free(lines);
     return result;
 }
 
