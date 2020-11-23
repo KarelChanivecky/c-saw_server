@@ -17,5 +17,6 @@
 #define EXIT_CHILD -3
 #define EXIT_EXEC -4
 #define EXIT_TIME -5
+#define EXIT_PROC_MSG -6
 
 #endif //C_SAW_SERVER_RETURN_CODES_H
