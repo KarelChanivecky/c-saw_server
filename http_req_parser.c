@@ -23,7 +23,7 @@
 
 char **tokenize_string(char * req_string, const char *delim, int i){
     int block = i;
-    int current_index = NUMBER_ZERO;
+    int index = NUMBER_ZERO;
 
     char *buffer;
     char **args = dc_malloc(sizeof(char*) * block);
@@ -38,10 +38,10 @@ char **tokenize_string(char * req_string, const char *delim, int i){
 
     while (token != NULL) {
 
-        args[current_index] = token;
-        current_index++;
+        args[index] = token;
+        index++;
 
-        if (current_index >= block) {
+        if (index >= block) {
             block += BLOCK;
             args = realloc(args, block * sizeof(char*));
             if (!args) {
@@ -59,7 +59,7 @@ char **tokenize_string(char * req_string, const char *delim, int i){
         }else
             token = NULL;
     }
-    args[current_index] = NULL;
+    args[index] = NULL;
 
     free(buffer);
     free(token);
