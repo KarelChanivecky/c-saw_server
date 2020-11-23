@@ -19,7 +19,6 @@
 #define SIMPLE_REQUEST "Simple-Request"
 #define FULL_REQUEST "Full-Request"
 #define DEFAULT_REQ_URI "/"
-#define METHOD_ERROR 99
 #define URI_ERROR 999
 
 char **tokenize_string(char * req_string, const char *delim){
