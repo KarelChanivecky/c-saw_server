@@ -13,38 +13,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int get_config(server_config_t * server_cfgs, int argc, char ** argv){
-    set_defaults(server_cfgs);
-    
-    read_confg_file(server_cfgs);
-    
-    char** args = get_args(argc, argv);
-    for(int i = 0; i < 10; i++)
-        if(args[i] != NULL){
-            switch (i) {
+int get_config( server_config_t * server_cfgs, int argc, char ** argv ) {
+    set_defaults( server_cfgs );
+
+    read_confg_file( server_cfgs );
+
+    char ** args = get_args( argc, argv );
+    for ( int i = 0; i < 10; i++ )
+        if ( args[i] != NULL) {
+            switch ( i ) {
                 case 0:
-                    server_cfgs->port = atoi(args[i]);
+                    server_cfgs->port = atoi( args[i] );
                     break;
                 case 1:
-                    server_cfgs->sin_family = atoi(args[i]);
+                    server_cfgs->sin_family = atoi( args[i] );
                     break;
                 case 2:
-                    server_cfgs->addr = atoi(args[i]);
+                    server_cfgs->addr = atoi( args[i] );
                     break;
                 case 3:
-                    server_cfgs->max_concurrent_conn = atoi(args[i]);
+                    server_cfgs->max_concurrent_conn = atoi( args[i] );
                     break;
                 case 4:
-                    server_cfgs->max_open_conn = atoi(args[i]);
+                    server_cfgs->max_open_conn = atoi( args[i] );
                     break;
                 case 5:
-                    server_cfgs->read_buffer_size = atoi(args[i]);
+                    server_cfgs->read_buffer_size = atoi( args[i] );
                     break;
                 case 6:
-                    server_cfgs->log_connections = atoi(args[i]);
+                    server_cfgs->log_connections = atoi( args[i] );
                     break;
                 case 7:
-                    server_cfgs->concurrency_model = atoi(args[i]);
+                    server_cfgs->concurrency_model = atoi( args[i] );
                     break;
                 case 8:
                     server_cfgs->content_root_dir_path = args[i];
@@ -52,12 +52,15 @@ int get_config(server_config_t * server_cfgs, int argc, char ** argv){
                 case 9:
                     server_cfgs->page_404_path = args[i];
                     break;
-                    
+                case 10:
+                    server_cfgs->page_404_path = args[i];
+                    break;
+
                 default:
                     break;
             }
         }
-    free(args);
+    free( args );
     return EXIT_SUCCESS;
 }
 

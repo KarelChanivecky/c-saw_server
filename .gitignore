@@ -51,3 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 /cmake-build-debug/
+
+http_response_diagram.odg
+.~lock.http_response_diagram.odg#

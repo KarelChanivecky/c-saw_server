@@ -10,7 +10,7 @@
 char** get_args(int argc, char **argv){
     char** args = calloc(10, sizeof(char*));
     int c;
-    
+
     static struct option long_options[] =
     {
         {"port", required_argument, 0, 'a'},
@@ -23,11 +23,12 @@ char** get_args(int argc, char **argv){
         {"conncurrency_model", required_argument, 0, 'h'},
         {"root_dir", required_argument, 0, 'i'},
         {"page_404", required_argument, 0, 'j'},
+        {"write_buffer_size", required_argument, 0, 'k'},
         {0, 0, 0, 0}
     };
-    
-    char* arg_pattern = "a:b:c:d:e:f:g:h:i:j:";
-    
+
+    char* arg_pattern = "a:b:c:d:e:f:g:h:i:j:k:";
+
     int option_index = 0;
 
     while ((c = getopt_long(argc, argv, arg_pattern, long_options, &option_index)) != -1)
@@ -66,6 +67,9 @@ char** get_args(int argc, char **argv){
                 break;
            case 'j':
                 args[9] = optarg;
+                break;
+            case 'k':
+                args[10] = optarg;
                 break;
            case '?':
 //                    fprintf (stderr, "Option -%c requires an argument.\n", optopt);
