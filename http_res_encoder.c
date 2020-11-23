@@ -11,21 +11,22 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <memory.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <memory.h>
-#include <errno.h>
 #include <fcntl.h>
 #include "http_res_encoder.h"
 #include "string.h"
-#include "stdlib.h"
 #include "ctype.h"
-#include "stdio.h"
 #include "http_req_parser.h"
+#include "server_config.h"
 
 #define BLOCK 17
+#define DATE_BLOCK 35
+#define MINUTES_IN_HOUR 60
+#define HOUR_IN_A_DAY 60
 #define SIMPLE_REQUEST "Simple-Request"
 #define SERVER_NAME "C-Saw"
 #define ALLOWED_METHODS "GET/HEAD"
@@ -77,7 +78,7 @@ char * delete_leading_whitespaces(char * line){
 bool is_valid_path(char * path){
     int forward_counter = 0;
     int back_counter = 0;
-    char **args = tokenize_string(path, "/\0");
+    char **args = tokenize_string(path, "/\0", BLOCK);
     int i = 0;
     while(args[i]){
         if(!strcmp(args[i], ".."))
@@ -134,7 +135,7 @@ void prepare_entity_body(char * path, http_res_t * res){
 }
 
 void set_time(http_res_t * res){
-    char *buf;
+    char buf[DATE_BLOCK];
     time_t now = time(0);
     struct tm tm = *gmtime(&now);
     int len = strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &tm);
@@ -143,8 +144,8 @@ void set_time(http_res_t * res){
     date = strcat(buf, "\r\n");
     res->date = time;
 
-    free(buf);
-    free(date);
+//    free(buf);
+//    free(date);
 }
 
 void set_server(http_res_t * res){
@@ -164,25 +165,28 @@ void set_allow(http_res_t * res){
     res->allow = allow;
 }
 
-void set_expires(http_res_t * res){
-    char *buf;
+void set_expires(http_res_t * res, double min){
+    char buf[DATE_BLOCK];
     time_t now = time(0);
-    struct tm tm = *gmtime(&now);
-    tm.tm_hour += 10; //TODO get the time from config file.
-    int len = strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &tm);
 
-    char * expiry_date = dc_malloc(sizeof(char) * (len+ 2));
+    struct tm expire = *gmtime(&now);
+    expire.tm_min += min;
+
+    mktime( &expire);
+
+    int len = strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &expire);
+    char * expiry_date = malloc(sizeof(char) * (len+ 2));
     expiry_date = strcat(buf, "\r\n");
-
     res->expires = expiry_date;
 
-    free(buf);
-    free(expiry_date);
+//    free(buf);
+//    free(expiry_date);
 }
 
 bool prepare_common_headers(char * path, http_res_t * res){
     set_server(&res);
     set_time(&res);
     set_allow(&res);
-    set_expires(&res);
+    set_expires(&res, 900); //TODO get the second parameter from config.
 }
+
