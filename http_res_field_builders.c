@@ -22,6 +22,7 @@
 #define SP " "
 #define SEPARATOR ": "
 
+
 // make status field
 #define HTTP_VERSION "HTTP/1.0"
 #define REASON_200 "OK"

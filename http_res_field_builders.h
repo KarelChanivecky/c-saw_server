@@ -12,6 +12,7 @@
 #include "server_config.h"
 
 #define HTTP_TIME_FORMAT "%a, %d %b %Y %T %x"
+#define REQ_END "\r\n"
 
 char * make_status_field( int code );
 

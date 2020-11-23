@@ -2,8 +2,8 @@
 // Created by root on 2020-11-17.
 //
 
-#include "http_req_parser.h"
-#include "handle_req.h"
+#include "../http_req_parser.h"
+#include "../handle_req.h"
 
 #ifndef C_SAW_SERVER_LOGGING_H
 #define C_SAW_SERVER_LOGGING_H

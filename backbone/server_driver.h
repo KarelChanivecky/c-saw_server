@@ -9,7 +9,7 @@
 #ifndef C_SAW_SERVER_SERVER_DRIVER_H
 #define C_SAW_SERVER_SERVER_DRIVER_H
 
-#include "server_config.h"
+#include "../server_config.h"
 
 _Noreturn void start_server(server_config_t * server_cfg);
 
