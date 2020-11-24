@@ -16,7 +16,7 @@
 
 void thread_put_req_fd( int conn_fd, async_configs * async_cfg);
 
-int thread_get_conn_fd(int argc, ...);
+int thread_get_conn_fd(async_handler_args * handler_args);
 
 async_handler_args * make_thread( async_configs * async_cfg, async_func_t);
 

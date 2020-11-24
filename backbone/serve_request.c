@@ -71,12 +71,11 @@ void * serve_request( void * v_args ) {
     server_config_t server_cfg = args.server_cfg;
 
     int conn_fd = args.conn_fd;
-    dc_sem_wait( concurrent_conn_sem );
     char * req_string = get_request_string( conn_fd, server_cfg.read_buffer_size );
     log_requester(conn_fd);
     printf("REQUEST\n%s", req_string);
-    http_req_t req;
-    int req_parse_status = parse_http_req( &req, req_string );
+//    http_req_t req;
+//    int req_parse_status = parse_http_req( &req, req_string );
 //     possibly error check?
 //    http_res_t res;
 //    int res_handle_status = handle_req( &req, &res );
@@ -96,10 +95,10 @@ void * serve_request( void * v_args ) {
         fprintf(stderr, "Error writing to socket while responding %s", strerror(errno));
     }
 
-    //    free(res_string);
+//        free(res_string);
+    dc_close( args.conn_fd );
+    dc_sem_post( concurrent_conn_sem );
     free( req_string );
     free(v_args);
-    dc_sem_post( concurrent_conn_sem );
-    dc_close( args.conn_fd );
     return NULL;
 }

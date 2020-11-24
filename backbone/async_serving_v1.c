@@ -54,12 +54,14 @@ void server_loop( server_config_t * server_cfg, int new_conn, sem_t * concurrent
 }
 
 _Noreturn void serve(server_config_t * server_cfg, int listen_socket_fd) {
+    printf("Serving model: spawn\n");
     if ( sem_unlink( CONCURRENT_CONN_SEM ) == 1 && errno != ENOENT ) {
         fprintf( stderr, "Error unlinking semaphore! %s", strerror(errno));
         exit( EXIT_FAILURE );
     }
     sem_t * concurrent_conn_sem = dc_sem_open( CONCURRENT_CONN_SEM, O_CREAT, 0640, server_cfg->max_concurrent_conn );
     while ( SERVING ) {
+        dc_sem_wait(concurrent_conn_sem);
         int new_conn = dc_accept( listen_socket_fd, NULL, NULL);
         server_loop( server_cfg, new_conn, concurrent_conn_sem );
     }

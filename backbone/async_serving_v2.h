@@ -20,10 +20,10 @@ typedef union handler_id {
 
 struct async_handler_args {
     handler_id id;
-    int (*get_req_fd)( int, ...);
-    int * free_threads;
+    int (*get_req_fd)( struct async_handler_args * handler_args);
+//    int * free_threads; to be used in elastic pool expansion
     sem_t * concurrent_conn_sem;
-    sem_t * req_sem;
+    sem_t * req_avail_sem;
     sem_t * listening_pass_fd_sem;
     dlinked_list * req_queue;
     server_config_t * server_cfg;
@@ -31,7 +31,7 @@ struct async_handler_args {
 typedef struct async_handler_args async_handler_args;
 
 struct async_configs {
-    int (*get_req_fd)( int, ...);
+    int (*get_req_fd)( async_handler_args * handler_args );
     int * free_threads;
     sem_t * req_avail_sem;
     sem_t * concurrent_conn_sem;
