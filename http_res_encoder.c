@@ -11,16 +11,26 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <memory.h>
+#include <errno.h>
+#include <fcntl.h>
 #include "http_res_encoder.h"
 #include "string.h"
 #include "stdlib.h"
 #include "ctype.h"
+#include "stdio.h"
 #include "http_req_parser.h"
 
 #define BLOCK 17
 #define SIMPLE_REQUEST "Simple-Request"
 #define SERVER_NAME "C-Saw"
 #define ALLOWED_METHODS "GET/HEAD"
+#define BYTES_PER_CYCLE 1u
+
 
 
 
@@ -76,14 +86,8 @@ bool is_valid_path(char * path){
             forward_counter++;
         i++;
     }
-
     free(args);
-    if(back_counter > forward_counter) {
-        return false;
-    }
-    else {
-        return true;
-    }
+    return back_counter <= forward_counter;
 }
 
 bool is_simple_req(char * request_type){
@@ -95,8 +99,33 @@ bool is_simple_req(char * request_type){
         return false;
 }
 
-char *prepare_entity_body(char * path){
+void prepare_entity_body(char * path, http_res_t * res){
+    int src_fd = open(path, O_RDONLY);
+    unsigned int counter = 0;
+    uint8_t temp = 0;
 
+    size_t c_read;
+    c_read = read( src_fd, &temp, BYTES_PER_CYCLE );
+    while(c_read > 0) {
+        counter++;
+        c_read = read( src_fd, &temp, BYTES_PER_CYCLE );
+    }
+
+    char * body = malloc(sizeof(char) * (counter + 1));
+    close(src_fd);
+    src_fd = open(path, O_RDONLY);
+
+    temp = 0;
+    c_read = read( src_fd, &temp, BYTES_PER_CYCLE );
+    while(c_read > 0) {
+        strncat(body, &temp, 1);
+        c_read = read( src_fd, &temp, BYTES_PER_CYCLE );
+    }
+
+    body = strcat(body, "\0");
+    strncat(body, "\0", 1);
+    res->body = body;
+    free(body);
 }
 
 void set_time(http_res_t * res){
