@@ -1,0 +1,11 @@
+port: 8080;
+sin family: 2;
+addr: 0;
+maximum concurrent connections: 15;
+maximum open connections: 15;
+read buffer size: 2048;
+write buffer size: 2048;
+log connections: false;
+concurrency model: true;
+content root directory: "/home";
+error 404 page: "error_page.html";
