@@ -27,11 +27,15 @@ int main(){
     start_color();
     init_pair(1, COLOR_CYAN, COLOR_BLACK);
     attron(COLOR_PAIR(1));
-    mvprintw(0, xMax/2 - 10, "Server Configuration");
+    mvprintw(1, xMax/2 - 10, "Server Configuration");
         attroff(COLOR_PAIR(1));
     
+    char * save_msg = "Press ENTER to save configurations";
+    int offset = strlen(save_msg)/2;
+    mvprintw(height, width/2 - offset, save_msg);
+    
 //    create a window for our input
-    WINDOW* menuwin = newwin(height-3, width, 1, 1);
+    WINDOW* menuwin = newwin(height-4, width, 3, 1);
 //    WINDOW* menuwin = newwin(6, xMax-12, yMax-8, 5);
     box(menuwin, 0, 0);
     refresh();
@@ -189,7 +193,9 @@ int main(){
     close(out);
 //    wmove(menuwin, 1, 3);
 //    int l = mvwinch(menuwin, 1, 18);
-    mvprintw(height, width/2, "Configurations are saved. Click any key to exit");
+    char * final_msg = "Configurations are saved. Click any key to exit";
+    offset = strlen(final_msg)/2;
+    mvprintw(height, width/2 - offset, final_msg);
     for (int i = 0; i < 11; i++) {
         free(output[i]);
     }
@@ -202,65 +208,3 @@ int main(){
     
     return 0;
 }
-
-//        for(int i = 0; i < 10; i++){
-//            if(i==highlight)
-//                wattron(menuwin, A_REVERSE);
-//            mvwprintw(menuwin, i+1, 1, choices[i]);
-//            wattroff(menuwin, A_REVERSE);
-//        }
-
-
-//                highlight--;
-//                if (highlight == -1) {
-//                    highlight = 0;
-//                }
-
-
-//                highlight++;
-//                if (highlight == 11) {
-//                    highlight = 10;
-//                }
-
-
-//    int c = wgetch(inputwin);
-//    if(c == KEY_UP){
-//        mvwprintw(inputwin, 1, 1, "You pressed up!");
-//        wrefresh(inputwin);
-//    }
-
-
-
-//    int y, x, yBeg, xBeg, yMax, xMax;
-//
-//    getyx(stdscr, y, x); // window, y, x;
-//    getbegyx(stdscr, yBeg, xBeg); // window, yBeg, xBeg;
-//    getmaxyx(stdscr, yMax, xMax); // window, yMax, xMax;
-//    printw("%d %d %d %d %d %d", y, x, yBeg, xBeg, yMax, xMax);
-
-
-
-//    WINDOW* win = newwin(10, 20, 10, 10); // height, width, start_y, start_x
-//    refresh();
-//
-//    box(win, 0, 0); // window, left-right border, top-bottom border
-//    mvwprintw(win, 1, 1, "this is my box");
-//    wrefresh(win);
-
-
-
-    
-//    start_color();
-//    init_pair(1, COLOR_RED, COLOR_BLUE);
-//    attron(COLOR_PAIR(1));
-//    attron(A_STANDOUT | A_UNDERLINE);
-//    int derp = 4;
-//    printw("Hello, World! = %d", derp);
-//    attroff(COLOR_PAIR(1));
-//
-//    addch('a');
-//    move(12, 13); //(y,x)
-//
-//    mvprintw(15, 20, "Movement");
-//    attroff(A_STANDOUT | A_UNDERLINE);
-//    mvaddch(12, 50, '@');
