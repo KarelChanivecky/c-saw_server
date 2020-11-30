@@ -67,7 +67,7 @@ char **tokenize_string(char * req_string, const char *delim, int i){
     return args;
 }
 
-char **dynamic_tokenize_req(char * req){
+char **dynamic_tokenize_req(char * req, int delimeter_len){
     int index = 0;
     int block = BLOCK;
     char **args = dc_malloc(sizeof(char*) * block);
@@ -87,7 +87,7 @@ char **dynamic_tokenize_req(char * req){
             }
         }
 
-        req += line_len + 2;
+        req += line_len + delimeter_len;
         line_len = strcspn(req, "\r\n");
         if(line_len == 0)
             break;

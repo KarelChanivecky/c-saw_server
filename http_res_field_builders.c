@@ -40,6 +40,16 @@
 #define REASON_505 "Internal server error"
 #define REASON_501 "Not Implemented"
 
+struct http_date{
+    int month;
+    int date;
+    int year;
+    int hours;
+    int minutes;
+    int seconds;
+};
+typedef struct http_date http_date;
+
 char * make_status_field( int code ) {
     size_t field_length = strlen( HTTP_VERSION ) + 8; // 2 spaces, crlf, code, terminating null char
     char * reason;
@@ -369,8 +379,283 @@ char *create_path(char * path, char * root){
     return buf_path;
 }
 
+/*
+ * type 1 represents Sun, 06 Nov 1994 08:49:37 GMT
+ * type 2 represents Sunday, 06-Nov-94 08:49:37 GMT
+ * type 3 represents Sun Nov  6 08:49:37 1994
+ */
+size_t get_type_of_date(char * date){
+    size_t line_len = strcspn(date, ",");
+    if(line_len == 3)
+        return 1;
+    else if((line_len > 3) && (line_len <= 10))
+        return 2;
+    else
+        return 0;
+}
+
+char **dynamic_tokenize_time(char * req,char * delim){
+    int index = 0;
+    int block = BLOCK;
+    char **args = malloc(sizeof(char*) * block);
+    size_t line_len = strcspn(req, delim);
+    char *token = malloc(sizeof(char) * (line_len + 1));
+    memcpy(token, req, line_len);
+    token[line_len] = '\0';
+
+    while(token != NULL){
+        args[index++] = token;
+        if (index >= block) {
+            block += BLOCK;
+            args = realloc(args, block * sizeof(char*));
+            if (!args) {
+                fprintf(stderr, "realloc allocation error\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        req += line_len + 1;
+        line_len = strcspn(req, delim);
+        if(line_len == 0)
+            break;
+        else {
+            token = malloc( sizeof( char ) * ( line_len + 1 ));
+            memcpy( token, req, line_len );
+            token[ line_len ] = '\0';
+        }
+    }
+
+    free(token);
+
+    return args;
+}
+
+
+int get_month(char * month){
+    int i = 0;
+    if(!strcmp(month, "Jan"))
+        i = 1;
+    else if(!strcmp(month, "Feb"))
+        i = 2;
+    else if(!strcmp(month, "Mar"))
+        i = 3;
+    else if(!strcmp(month, "Apr"))
+        i = 4;
+    else if(!strcmp(month, "May"))
+        i = 5;
+    else if(!strcmp(month, "Jun"))
+        i = 6;
+    else if(!strcmp(month, "Jul"))
+        i = 7;
+    else if(!strcmp(month, "Aug"))
+        i = 8;
+    else if(!strcmp(month, "Sep"))
+        i = 9;
+    else if(!strcmp(month, "Oct"))
+        i = 10;
+    else if(!strcmp(month, "Nov"))
+        i = 11;
+    else if(!strcmp(month, "Dec"))
+        i = 12;
+    return i;
+
+}
+/*
+ * type 1 represents Sun, 06 Nov 1994 08:49:37 GMT
+ * type 2 represents Sunday, 06-Nov-94 08:49:37 GMT
+ * type 3 represents Sun Nov  6 08:49:37 1994
+ */
+bool compare_date_type_1(char * last_mod_date, char * if_mod_date){  //Sun, 06 Nov 1994 08:49:37 GMT"
+    bool is_modified = false;
+    http_date file_date;
+    http_date req_date;
+    char **file_last_mod_date = dynamic_tokenize_req(last_mod_date, 1);
+    char **req_last_mod_date = dynamic_tokenize_req(if_mod_date, 1);
+
+    char **file_last_mod_time = dynamic_tokenize_time(file_last_mod_date[4],":");
+    char **req_last_mod_time = dynamic_tokenize_time(req_last_mod_date[4],":");
+
+
+    file_date.date = atoi(file_last_mod_date[1]);
+    file_date.month = get_month(file_last_mod_date[2]);
+    file_date.year = atoi(file_last_mod_date[3]);
+    file_date.hours = atoi(file_last_mod_time[0]);
+    file_date.minutes = atoi(file_last_mod_time[1]);
+    file_date.seconds = atoi(file_last_mod_time[2]);
+
+    req_date.date = atoi(req_last_mod_date[1]);
+    req_date.month = get_month(req_last_mod_date[2]);
+    req_date.year = atoi(req_last_mod_date[3]);
+    req_date.hours = atoi(req_last_mod_time[0]);
+    req_date.minutes = atoi(req_last_mod_time[1]);
+    req_date.seconds = atoi(req_last_mod_time[2]);
+
+    if(file_date.year > req_date.year){
+        is_modified = true;
+    }else{
+        if(file_date.month > req_date.month){
+            is_modified = true;
+        }else{
+            if(file_date.date > req_date.date){
+                is_modified = true;
+            }else{
+                if(file_date.hours > req_date.hours){
+                    is_modified =true;
+                }else{
+                    if(file_date.minutes > req_date.minutes){
+                        is_modified = true;
+                    }else{
+                        if(file_date.seconds > req_date.seconds){
+                            is_modified = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return is_modified;
+
+}
+/*
+ * type 1 represents Sun, 06 Nov 1994 08:49:37 GMT
+ * type 2 represents Sunday, 06-Nov-94 08:49:37 GMT
+ * type 3 represents Sun Nov  6 08:49:37 1994
+ */
+bool compare_date_type_2(char * last_mod_date, char * if_mod_date){ //Sunday, 06-Nov-94 08:49:37 GMT
+    bool is_modified = false;
+    http_date file_date;
+    http_date req_date;
+    char **file_last_mod_date = dynamic_tokenize_req(last_mod_date, 1);
+    char **req_last_mod_date = dynamic_tokenize_req(if_mod_date, 1);
+
+//    char **file_last_mod_calender_date = dynamic_tokenize_time(file_last_mod_date[1], "-");
+    char **req_last_mod_calender_date = dynamic_tokenize_time(req_last_mod_date[1], "-");
+
+    char **file_last_mod_time = dynamic_tokenize_time(file_last_mod_date[2], ":");
+    char **req_last_mod_time = dynamic_tokenize_time(req_last_mod_date[2], ":");
+
+    file_date.date = atoi(file_last_mod_date[1]);
+    file_date.month = get_month(file_last_mod_date[2]);
+    file_date.year = atoi(file_last_mod_date[3]);
+    file_date.hours = atoi(file_last_mod_time[0]);
+    file_date.minutes = atoi(file_last_mod_time[1]);
+    file_date.seconds = atoi(file_last_mod_time[2]);
+
+    req_date.date = atoi(req_last_mod_calender_date[0]);
+    req_date.month = get_month(req_last_mod_calender_date[1]);
+    req_date.year = atoi(req_last_mod_calender_date[2]);
+    req_date.hours = atoi(req_last_mod_time[0]);
+    req_date.minutes = atoi(req_last_mod_time[1]);
+    req_date.seconds = atoi(req_last_mod_time[2]);
+
+    if(req_date.year <= 30)
+        req_date.year += 2000;
+    else
+        req_date.year += 1900;
+
+    if(file_date.year > req_date.year){
+        is_modified = true;
+    }else{
+        if(file_date.month > req_date.month){
+            is_modified = true;
+        }else{
+            if(file_date.date > req_date.date){
+                is_modified = true;
+            }else{
+                if(file_date.hours > req_date.hours){
+                    is_modified =true;
+                }else{
+                    if(file_date.minutes > req_date.minutes){
+                        is_modified = true;
+                    }else{
+                        if(file_date.seconds > req_date.seconds){
+                            is_modified = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return is_modified;
+}
+/*
+ * type 1 represents Sun, 06 Nov 1994 08:49:37 GMT
+ * type 2 represents Sunday, 06-Nov-94 08:49:37 GMT
+ * type 3 represents Sun Nov  6 08:49:37 1994
+ */
+bool compare_date_type_3(char * last_mod_date, char * if_mod_date){ //"Sun Nov  6 08:49:37 1994"
+    bool is_modified;
+    http_date file_date;
+    http_date req_date;
+    char **file_last_mod_date = dynamic_tokenize_req(last_mod_date, 1);
+    char **req_last_mod_date = dynamic_tokenize_req(if_mod_date, 1);
+
+    char **file_last_mod_time = dynamic_tokenize_time(file_last_mod_date[2], ":");
+    char **req_last_mod_time = dynamic_tokenize_time(req_last_mod_date[2], ":");
+
+    file_date.date = atoi(file_last_mod_date[1]);
+    file_date.month = get_month(file_last_mod_date[2]);
+    file_date.year = atoi(file_last_mod_date[3]);
+    file_date.hours = atoi(file_last_mod_time[0]);
+    file_date.minutes = atoi(file_last_mod_time[1]);
+    file_date.seconds = atoi(file_last_mod_time[2]);
+
+    req_date.date = atoi(req_last_mod_date[2]);
+    req_date.month = get_month(req_last_mod_date[1]);
+    req_date.year = atoi(req_last_mod_date[4]);
+    req_date.hours = atoi(req_last_mod_time[0]);
+    req_date.minutes = atoi(req_last_mod_time[1]);
+    req_date.seconds = atoi(req_last_mod_time[2]);
+
+    if(file_date.year > req_date.year){
+        is_modified = true;
+    }else{
+        if(file_date.month > req_date.month){
+            is_modified = true;
+        }else{
+            if(file_date.date > req_date.date){
+                is_modified = true;
+            }else{
+                if(file_date.hours > req_date.hours){
+                    is_modified =true;
+                }else{
+                    if(file_date.minutes > req_date.minutes){
+                        is_modified = true;
+                    }else{
+                        if(file_date.seconds > req_date.seconds){
+                            is_modified = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return is_modified;
+}
+/*
+ * type 1 represents Sun, 06 Nov 1994 08:49:37 GMT
+ * type 2 represents Sunday, 06-Nov-94 08:49:37 GMT
+ * type 3 represents Sun Nov  6 08:49:37 1994
+ */
 bool compare_dates(char * last_mod_date, char * if_mod_date){
-    return true;
+    bool is_modified_after_asked_date = false;
+    size_t type_of_date = 0;
+    type_of_date = get_type_of_date(last_mod_date);
+    switch(type_of_date){
+        case 1:
+            is_modified_after_asked_date = compare_date_type_1(last_mod_date, if_mod_date);
+            break;
+        case 2:
+            is_modified_after_asked_date = compare_date_type_2(last_mod_date, if_mod_date);
+            break;
+        case 0:
+            is_modified_after_asked_date = compare_date_type_3(last_mod_date, if_mod_date);
+            break;
+    }
+    return is_modified_after_asked_date;
 }
 bool file_modified_after_requested_if_moddified_date(char * path, char *root, char * if_mod_date){
     bool is_modified = false;
