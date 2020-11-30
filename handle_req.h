@@ -11,6 +11,9 @@
 
 #include "http_req_parser.h"
 #include "http_res_type.h"
+#include "http_res_field_builders.h"
+#include "http_res_encoder.h"
+#include "server_config.h"
 
 
 /**
@@ -19,6 +22,6 @@
  * @param res the un-encoded response including header and body
  * @return SUCCESS or an error code
  */
-int handle_req(http_req_t * req, http_res_t * res);
+int handle_req(http_req_t * req, http_res_t * res, server_config_t * config);
 
 #endif //C_SAW_SERVER_HANDLE_REQ_H
