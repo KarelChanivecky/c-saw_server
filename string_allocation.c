@@ -7,8 +7,10 @@
 #include "string_allocation.h"
 #include "string.h"
 #include "dc/stdlib.h"
+#include <sys/stat.h>
 
-
+#include "unistd.h"
+#include "write_bin/char_bits.h"
 
 char * alloc_string( char * string ) {
     if ( !string ) {
@@ -106,28 +108,32 @@ char ** dynamic_tokenize_req( char * req, int delimeter_len ) {
 #define DEFAULT_BUFFER_SIZE 1024
 #define READ_ALLOC_COEFF 4
 
-char * read_fd( int fd ) {
-    size_t allocated_space = DEFAULT_BUFFER_SIZE * READ_ALLOC_COEFF;
-    char * req_string = dc_malloc( sizeof( char ) * DEFAULT_BUFFER_SIZE * READ_ALLOC_COEFF );
+char * read_fd( int fd, size_t * body_len ) {
+    struct stat st;
+    fstat(fd, &st);
+    char * req_string = dc_malloc( sizeof( char ) * st.st_size + 1 );
     char buffer[DEFAULT_BUFFER_SIZE];
+
     size_t bytes_read = dc_read( fd, buffer, DEFAULT_BUFFER_SIZE );
     size_t total_bytes_read = bytes_read;
-
+    size_t append_index = 0;
     while ( bytes_read ) {
-
-
-        if (( long long ) allocated_space - ( long long ) total_bytes_read < 0 ) {
-            req_string = dc_realloc( req_string,
-                                     sizeof( char ) * allocated_space + ( DEFAULT_BUFFER_SIZE * READ_ALLOC_COEFF ));
+        size_t buff_index = 0;
+        while (append_index < total_bytes_read) {
+            req_string[append_index] = buffer[buff_index];
+            buff_index++;
+            append_index++;
         }
 
-        strncat( req_string, buffer, bytes_read );
-
+        write_char_bits(STDOUT_FILENO, buffer, bytes_read * 8);
         bytes_read = dc_read( fd, buffer, DEFAULT_BUFFER_SIZE );
         total_bytes_read += bytes_read;
     }
-    req_string = dc_realloc( req_string, sizeof( char ) * ( total_bytes_read + 1 ));
+    printf("\n");
     req_string[ total_bytes_read ] = 0;
+    *body_len = total_bytes_read;
+    write_char_bits(STDOUT_FILENO, req_string, total_bytes_read * 8);
+    dc_close(fd);
     return req_string;
 }
 

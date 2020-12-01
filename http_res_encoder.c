@@ -12,13 +12,14 @@
 #include "http_res_encoder.h"
 #include "string.h"
 
+#define FIELD_DELIMITER "\r\n"
 
 char * getField(http_res_t * res, size_t offset) {
     char ** field_ptr = (char**) ((char*)res + offset);
     return field_ptr == NULL? NULL : *field_ptr;
 }
 
-char * http_res_encode(http_res_t * res) {
+uint8_t * http_res_encode(http_res_t * res, size_t * body_len) {
     if (!res) {
         return NULL;
     }
@@ -27,23 +28,35 @@ char * http_res_encode(http_res_t * res) {
     get_http_res_offsets(offsets);
 
     size_t bytes_to_allocate = 0;
-    for (int i = 0; i < HTTP_RES_T_FIELD_COUNT; i++) {
+    for (int i = 0; i < HTTP_RES_T_FIELD_COUNT - 1; i++) {
         char * field = getField(res, offsets[i]);
-        bytes_to_allocate += field == NULL? 0 : strlen(field);
+        bytes_to_allocate += field == NULL? 0 : (strlen(field) + 2);
     }
 
-    char * res_string = dc_malloc(sizeof(char ) * bytes_to_allocate + 1);
+    bytes_to_allocate += *body_len + 3; // \r\n
+    size_t old_body_len = *body_len;
+    *body_len = bytes_to_allocate - 2;
+    uint8_t * res_string = dc_malloc(sizeof(uint8_t ) * bytes_to_allocate  + 1);
 
-    for ( int i = 0; i < HTTP_RES_T_FIELD_COUNT; ++i ) {
+    for ( int i = 0; i < HTTP_RES_T_FIELD_COUNT - 1; ++i ) {
         char * field = getField(res, offsets[i]);
         if (field != NULL) {
             size_t field_len =  strlen(field);
-            strncat(res_string, field, field_len);
+            strncat((char *)res_string, field, field_len + 1);
+            strncat((char *)res_string, FIELD_DELIMITER, 3);
             free(field);
         }
     }
-
+    if (old_body_len == 0) {
+        return res_string;
+    }
+    strncat((char *)res_string, FIELD_DELIMITER, 3);
+//    strncat((char *)res_string, FIELD_DELIMITER, 3);
     res_string[bytes_to_allocate] = 0;
+    while (bytes_to_allocate-- && old_body_len + 1) {
+        uint8_t foo = res->body[old_body_len--];
+        res_string[bytes_to_allocate] = foo;
+    }
     return res_string;
 }
 

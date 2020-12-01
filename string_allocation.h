@@ -13,7 +13,7 @@ char ** tokenize_string( char * line, const char * delim, int i );
 
 char ** dynamic_tokenize_req( char * req, int delimeter_len );
 
-char * read_fd( int fd );
+char * read_fd( int fd, size_t * body_len );
 
 char * join_strings( char * first, char * scnd );
 

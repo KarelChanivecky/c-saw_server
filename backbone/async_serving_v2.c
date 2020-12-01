@@ -114,7 +114,6 @@ _Noreturn void serve( server_config_t * server_cfg, int listen_socket_fd ) {
         sem_wait( async_cfg.concurrent_conn_sem );
 
         int new_conn = dc_accept( listen_socket_fd, NULL, NULL);
-        printf("accepted\n");
         put_req_fd( new_conn, &async_cfg );
 
         // reduce or increase the pool size

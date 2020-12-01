@@ -6,6 +6,7 @@
 #include "string.h"
 #include "return_codes.h"
 #include "http_req_checks.h"
+#include "stdio.h"
 
 #define HTTP_VERSION "HTTP/1.0"
 
@@ -23,7 +24,7 @@ void initialize_res( http_res_t * res ) {
 }
 
 
-int prepare_get_head_response( http_req_t * req, http_res_t * res, server_config_t * server_cfg ) {
+int prepare_get_head_response( http_req_t * req, http_res_t * res, server_config_t * server_cfg, size_t * body_len ) {
     int status;
     char * path = NULL;
     bool is_head = check_method( req ) == METHOD_HEAD;
@@ -43,12 +44,15 @@ int prepare_get_head_response( http_req_t * req, http_res_t * res, server_config
     } else {
         status = STATUS_NOT_FOUND;
         path = server_cfg->page_404_path;
+        res->content_length = make_content_length(server_cfg->page_404_path);
+        res->content_type = make_content_type(server_cfg->page_404_path);
     }
     if ( !path || is_head ) {
         res->body = NULL;
         return status;
     }
-    res->body = prepare_entity_body( path );
+
+    res->body = prepare_entity_body( path, body_len );
     if (!res->body) {
         status = STATUS_INTERNAL_SERVER_ERROR;
     }
@@ -57,26 +61,26 @@ int prepare_get_head_response( http_req_t * req, http_res_t * res, server_config
 }
 
 
-int handle_simple_request( http_req_t * req, http_res_t * res ) {
+int handle_simple_request( http_req_t * req, http_res_t * res, size_t * body_len ) {
     if ( path_in_bounds( req->request_type )) {
-        res->body = prepare_entity_body( req->request_URI );
+        res->body = prepare_entity_body( req->request_URI, body_len );
         return STATUS_OK;
     }
     res->status_line = make_status_field( STATUS_FORBIDDEN );
     return STATUS_FORBIDDEN;
 }
 
-int handle_req( http_req_t * req, http_res_t * res, server_config_t * server_cfg ) {
+int handle_req( http_req_t * req, http_res_t * res, server_config_t * server_cfg, size_t * body_len ) {
 
     initialize_res( res );
 
     prepare_common_headers( res );
     if ( is_simple_req( req->request_type )) {
-        return handle_simple_request( req, res );
+        return handle_simple_request( req, res, body_len );
     }
 
     if ( check_method( req ) != METHOD_OTHER ) {  //if method is GET
-        return prepare_get_head_response( req, res, server_cfg );
+        return prepare_get_head_response( req, res, server_cfg, body_len );
     }
 
     res->status_line = make_status_field( STATUS_NOT_IMPLEMENTED );

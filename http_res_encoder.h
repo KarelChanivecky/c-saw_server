@@ -17,6 +17,6 @@
  * @param res a pointer to struct http_res_t
  * @return the encoded response or null for error
  */
-char * http_res_encode(http_res_t * res);
+uint8_t * http_res_encode(http_res_t * res, size_t * body_len);
 
 #endif //C_SAW_SERVER_HTTP_RES_ENCODER_H

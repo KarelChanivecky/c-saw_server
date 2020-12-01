@@ -19,6 +19,7 @@
 #include <semaphore.h>
 #include <stdio.h>
 #include <errno.h>
+#include "unistd.h"
 
 
 char * get_request_string( int conn_fd, size_t buffer_size ) {
@@ -49,17 +50,17 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
     return req_string;
 }
 
-int write_res_string( int conn_fd, char * res_string, size_t write_buffer_size ) {
-    size_t response_len = strlen( res_string );
+int write_res_string( int conn_fd, uint8_t * res_string, size_t response_len, size_t write_buffer_size ) {
     size_t bytes_to_write = write_buffer_size < response_len ? write_buffer_size : response_len;
     while ( bytes_to_write ) {
-        size_t bytes_written = dc_write( conn_fd, res_string, bytes_to_write );
-        if ( bytes_written != bytes_to_write ) {
+        size_t bytes_written = write( conn_fd, res_string, response_len + 1 );
+        if ( bytes_written != response_len ) {
             return BYTES_WRITTEN_MISS_MATCH;
         }
-        response_len -= bytes_written;
-        res_string += bytes_written;
-        bytes_to_write = write_buffer_size < response_len ? write_buffer_size : response_len;
+//        response_len -= bytes_written;
+//        res_string += bytes_written;
+        bytes_to_write = 0;
+//        bytes_to_write = write_buffer_size < response_len ? write_buffer_size : response_len;
     }
     return SUCCESS;
 }
@@ -72,28 +73,33 @@ void * serve_request( void * v_args ) {
     int conn_fd = args.conn_fd;
     char * req_string = get_request_string( conn_fd, server_cfg.read_buffer_size );
     log_requester( conn_fd );
-    printf( "REQUEST\n%s", req_string );
     http_req_t req;
-    int req_parse_status = parse_http_req( &req, req_string, &server_cfg );
+    parse_http_req( &req, req_string, &server_cfg );
 //    possibly error check ?
+    size_t body_len = 0;
     http_res_t res;
-    int res_handle_status = handle_req( &req, &res, &server_cfg );
+
+    handle_req( &req, &res, &server_cfg, &body_len );
 //    possibly error check ?
-    char * res_string = http_res_encode( &res );
+
+    uint8_t * res_string = http_res_encode( &res, &body_len );
     if ( server_cfg.log_connections ) {
-        log_action( conn_fd, req, res );
+        printf( "\nREQUEST\n%s\n", req_string );
+        printf( "\nRESPONSE\n%s\n", res_string );
+//        log_action( conn_fd, &req, &res );
     }
 
-    if ( write_res_string( conn_fd, res_string, server_cfg.write_buffer_size )
+
+
+
+    if ( write_res_string( conn_fd, res_string, body_len, server_cfg.write_buffer_size )
 
          ==
          BYTES_WRITTEN_MISS_MATCH
          &&
          server_cfg.log_connections ) {
-
         fprintf( stderr, "Error writing to socket while responding %s", strerror(errno));
     }
-
     free( res_string );
     dc_close( args.conn_fd );
     dc_sem_post( concurrent_conn_sem );

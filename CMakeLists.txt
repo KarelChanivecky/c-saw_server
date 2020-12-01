@@ -30,17 +30,13 @@ add_executable(c_saw_server
         http_res_field_builders.c
         backbone/logging.c
         backbone/server_driver.c
-        backbone/serve_request.c string_allocation.c string_allocation.h)
+        backbone/serve_request.c string_allocation.c string_allocation.h
+        write_bin/char_bits.c
+        write_bin/handled_file_IO.c
+        )
 
 target_link_libraries(c_saw_server pthread dc_utils dc config m pooled_async spawned_async)
 target_compile_options(c_saw_server PRIVATE -Wpedantic -Wall -Wextra -fPIC)
-
-add_executable(test_http_res_encoder http_res_encoder.c http_res_encoder.h http_res_type.c http_res_type.h
-        tests/test_http_res_encode.c
-        http_req_parser.c string_allocation.c string_allocation.h)
-
-target_link_libraries(test_http_res_encoder pthread dc)
-target_compile_options(test_http_res_encoder PRIVATE -Wpedantic -Wall -Wextra -fPIC)
 
 
 
