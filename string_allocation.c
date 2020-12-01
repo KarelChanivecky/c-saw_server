@@ -3,6 +3,7 @@
 //
 
 #include <stdlib.h>
+#include <dc/unistd.h>
 #include "string_allocation.h"
 #include "string.h"
 #include "dc/stdlib.h"
@@ -102,4 +103,39 @@ char ** dynamic_tokenize_req( char * req, int delimeter_len ) {
     return args;
 }
 
+#define DEFAULT_BUFFER_SIZE 1024
+#define READ_ALLOC_COEFF 4
 
+char * read_fd( int fd ) {
+    size_t allocated_space = DEFAULT_BUFFER_SIZE * READ_ALLOC_COEFF;
+    char * req_string = dc_malloc( sizeof( char ) * DEFAULT_BUFFER_SIZE * READ_ALLOC_COEFF );
+    char buffer[DEFAULT_BUFFER_SIZE];
+    size_t bytes_read = dc_read( fd, buffer, DEFAULT_BUFFER_SIZE );
+    size_t total_bytes_read = bytes_read;
+
+    while ( bytes_read ) {
+
+
+        if (( long long ) allocated_space - ( long long ) total_bytes_read < 0 ) {
+            req_string = dc_realloc( req_string,
+                                     sizeof( char ) * allocated_space + ( DEFAULT_BUFFER_SIZE * READ_ALLOC_COEFF ));
+        }
+
+        strncat( req_string, buffer, bytes_read );
+
+        bytes_read = dc_read( fd, buffer, DEFAULT_BUFFER_SIZE );
+        total_bytes_read += bytes_read;
+    }
+    req_string = dc_realloc( req_string, sizeof( char ) * ( total_bytes_read + 1 ));
+    req_string[ total_bytes_read ] = 0;
+    return req_string;
+}
+
+char * join_strings( char * first, char * scnd ) {
+    size_t first_len = strlen( first );
+    size_t scnd_len = strlen( scnd );
+    char * buf = dc_malloc( sizeof( char * ) * ( first_len + scnd_len + 1 ));
+    strncpy( buf, first, first_len );
+    strncat( buf, scnd, scnd_len);
+    return buf;
+}

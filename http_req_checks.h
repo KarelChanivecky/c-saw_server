@@ -21,11 +21,11 @@
 #define METHOD_HEAD 0
 #define METHOD_OTHER -1
 
-bool check_protocol( http_req_t req );
+bool check_protocol( http_req_t * req );
 
-int check_method( http_req_t req );
+int check_method( http_req_t * req );
 
-bool check_modified_since( http_req_t req );
+bool check_modified_since( http_req_t * req );
 
 
 #endif //C_SAW_SERVER_HTTP_REQ_CHECKS_H

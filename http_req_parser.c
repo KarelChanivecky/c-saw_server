@@ -1,9 +1,11 @@
 #include <string.h>
 #include <stdlib.h>
+#include <dc/stdlib.h>
 
 #include "http_req_parser.h"
 #include "return_codes.h"
 #include "string_allocation.h"
+
 
 #define BLOCK_FOR_REQUEST_LINE 17
 #define AUTH "Authorization"
@@ -50,15 +52,14 @@ int tokenize_header(char * container[], char * req_string, const char * delimite
 }
 
 
-int setup_request_line( http_req_t * req, char ** parsed_request_line ) {
+int setup_request_line( http_req_t * req, char ** parsed_request_line, server_config_t * server_cfg ) {
     req->method = alloc_string( parsed_request_line[0] );
 
     if ( parsed_request_line[PATH_INDEX] ) {
         if ( *parsed_request_line[PATH_INDEX] != URI_PATH_DELIMITER ) {
-
             return INVALID_URI;
         } else {
-            req->request_URI = alloc_string( parsed_request_line[PATH_INDEX] );
+            req->request_URI = join_strings( server_cfg->content_root_dir_path, (parsed_request_line[PATH_INDEX] + 1) );
         }
     }
 
@@ -88,14 +89,14 @@ void initialize_req( http_req_t * req ) {
 
 
 
-int parse_http_req( http_req_t * req, char * req_string ) {
+int parse_http_req( http_req_t * req, char * req_string, server_config_t * server_cfg ) {
     initialize_req( req );
     char ** lines = dynamic_tokenize_req( req_string, DELIMITER_LENGTH );
 
     char ** parsed_request_line = tokenize_string(
             lines[STATUS_LINE_INDEX], " ", BLOCK_FOR_REQUEST_LINE );
 
-    int result = setup_request_line( req, parsed_request_line );
+    int result = setup_request_line( req, parsed_request_line, server_cfg);
 
     if ( result != 0 ) {
         return result;

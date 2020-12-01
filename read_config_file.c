@@ -7,6 +7,7 @@
 
 #include "read_config_file.h"
 #include "server_config.h"
+#include "string_allocation.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <libconfig.h>
@@ -25,17 +26,23 @@ int read_confg_file(server_config_t * server_cfgs){
         return(EXIT_FAILURE);
     }
 
-    config_lookup_int(&cfg, "port", &(server_cfgs->port));
-    config_lookup_int(&cfg, "sin_family", &(server_cfgs->sin_family));
-    config_lookup_int(&cfg, "addr", &(server_cfgs->addr));
-    config_lookup_int(&cfg, "max_concurrent_conn", &(server_cfgs->max_concurrent_conn));
-    config_lookup_int(&cfg, "max_open_conn", &(server_cfgs->max_open_conn));
-    config_lookup_int(&cfg, "read_buffer_size", &(server_cfgs->read_buffer_size));
-    config_lookup_int(&cfg, "write_buffer_size", &(server_cfgs->write_buffer_size));
-    config_lookup_bool(&cfg, "log_connections", &(server_cfgs->log_connections));
-    config_lookup_bool(&cfg, "concurrency_model", &(server_cfgs->concurrency_model));
-    config_lookup_string(&cfg, "content_root_dir_path", &(server_cfgs->content_root_dir_path));
-    config_lookup_string(&cfg, "page_404_path", &(server_cfgs->page_404_path));
+    char * root_dir_path;
+    char * path_404;
+
+    config_lookup_int( &cfg, "port", ( int * ) &( server_cfgs->port ));
+    config_lookup_int(&cfg, "sin_family", (int *)&(server_cfgs->sin_family));
+    config_lookup_int(&cfg, "addr", (int *)&(server_cfgs->addr));
+    config_lookup_int(&cfg, "max_concurrent_conn", (int *)&(server_cfgs->max_concurrent_conn));
+    config_lookup_int(&cfg, "max_open_conn", (int *)&(server_cfgs->max_open_conn));
+    config_lookup_int(&cfg, "read_buffer_size", (int *)&(server_cfgs->read_buffer_size));
+    config_lookup_int(&cfg, "write_buffer_size", (int *)&(server_cfgs->write_buffer_size));
+    config_lookup_bool(&cfg, "log_connections", (int *)&(server_cfgs->log_connections));
+    config_lookup_bool(&cfg, "concurrency_model", (int *)&(server_cfgs->concurrency_model));
+    config_lookup_string(&cfg, "content_root_dir_path", &root_dir_path);
+    config_lookup_string(&cfg, "page_404_path", &path_404);
+
+    server_cfgs->content_root_dir_path = alloc_string(root_dir_path);
+    server_cfgs->page_404_path = alloc_string(path_404);
 
     config_destroy(&cfg);
     return EXIT_SUCCESS;

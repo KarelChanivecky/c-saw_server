@@ -9,6 +9,8 @@
 #ifndef C_SAW_SERVER_HTTP_REQ_PARSER_H
 #define C_SAW_SERVER_HTTP_REQ_PARSER_H
 
+#include "server_config.h"
+
 #define URI_PATH_DELIMITER '/'
 
 struct http_req_t {
@@ -29,6 +31,6 @@ typedef struct http_req_t http_req_t;
    Line of a Full-Request is the presence of the HTTP-Version field and
    the availability of methods other than GET.
  */
-int parse_http_req(http_req_t * req, char * req_string);
+int parse_http_req(http_req_t * req, char * req_string, server_config_t * server_cfg);
 
 #endif //C_SAW_SERVER_HTTP_REQ_PARSER_H

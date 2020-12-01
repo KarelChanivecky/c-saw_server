@@ -74,15 +74,11 @@ void * serve_request( void * v_args ) {
     log_requester( conn_fd );
     printf( "REQUEST\n%s", req_string );
     http_req_t req;
-    int req_parse_status = parse_http_req( &req, req_string );
-//    possibly
-//    error
-//    check ?
+    int req_parse_status = parse_http_req( &req, req_string, &server_cfg );
+//    possibly error check ?
     http_res_t res;
     int res_handle_status = handle_req( &req, &res, &server_cfg );
-//    possibly
-//    error
-//    check ?
+//    possibly error check ?
     char * res_string = http_res_encode( &res );
     if ( server_cfg.log_connections ) {
         log_action( conn_fd, req, res );

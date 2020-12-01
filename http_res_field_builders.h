@@ -25,26 +25,26 @@ char * make_content_length( char * path );
 
 char * make_content_type( char * path );
 
-char * delete_leading_whitespaces(char * line);
+char * delete_leading_whitespaces( char * line );
 
-bool is_valid_path(char * path);
+bool path_in_bounds( char * path );
 
-bool is_simple_req(char * request_type);
+bool is_simple_req( char * request_type );
 
-void prepare_entity_body(char * path, http_res_t * res);
+char * prepare_entity_body( char * path );
 
-void set_time(http_res_t * res);
+char * get_date();
 
-void set_server(http_res_t * res);
+char * get_server();
 
-void set_allow(http_res_t * res);
+char * get_allow();
 
-void set_expires(http_res_t * res, size_t minutes);
+char * get_expires( size_t minutes );
 
-bool prepare_common_headers(http_res_t * res, server_config_t * server_cfg);
+void prepare_common_headers( http_res_t * res );
 
-bool file_exists(char * path, char * root);
+bool file_exists( char * path );
 
-bool file_modified_after_requested_if_modified_date( char * path, char *root, char * if_mod_date);
+bool file_modified_after_requested_if_modified_date( char * path, char * if_mod_date );
 
 #endif //C_SAW_SERVER_HTTP_RES_FIELD_BUILDERS_H
