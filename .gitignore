@@ -56,3 +56,4 @@ http_response_diagram.odg
 .~lock.http_response_diagram.odg#
 
 /build
+build/

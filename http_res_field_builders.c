@@ -15,7 +15,6 @@
 
 #include <dc/stdlib.h>
 #include <dc/unistd.h>
-#include <dc/fcntl.h>
 
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -112,7 +111,8 @@ char * make_last_modified( char * path ) {
     struct tm last_modified_tm;
     gmtime_r( &file_stat.st_mtime, &last_modified_tm );
     char time_str[MAX_TIME_STR_LEN];
-    size_t time_len = strftime( time_str, MAX_TIME_STR_LEN, HTTP_TIME_FORMAT, &last_modified_tm );
+    strftime( time_str, MAX_TIME_STR_LEN, HTTP_TIME_FORMAT, &last_modified_tm );
+    size_t time_len = strlen(time_str);
     size_t last_modified_len = strlen( LAST_MODIFIED_FIELD_NAME ) + time_len + 3; // : SP and null byte
     char * last_modified_str = ( char * ) dc_malloc( last_modified_len );
     strncat( last_modified_str, LAST_MODIFIED_FIELD_NAME, strlen( LAST_MODIFIED_FIELD_NAME ) + 1 );
@@ -189,6 +189,13 @@ char * get_content_type( char * path ) {
     return content_type;
 }
 
+void r_strip(char * str) {
+    size_t len = strlen(str);
+    str+= len - 1;
+    while (*str == '\n' || *str == '\r') {
+        *str =0;
+    }
+}
 
 char * make_content_type( char * path ) {
     char * content_type = get_content_type( path );
@@ -198,6 +205,7 @@ char * make_content_type( char * path ) {
     strncat( content_type_field, SEPARATOR, 3 );
     strncat( content_type_field, content_type, strlen( content_type ) + 1 );
     free( content_type );
+    r_strip(content_type_field);
     return content_type_field;
 }
 
@@ -245,7 +253,7 @@ bool is_simple_req( char * request_type ) {
     return strcmp( buffer, SIMPLE_REQUEST ) == 0;
 }
 
-char * prepare_entity_body( char * path ) {
+char * prepare_entity_body( char * path, size_t * body_len ) {
     if ( !path ) {
         return NULL;
     }
@@ -259,7 +267,7 @@ char * prepare_entity_body( char * path ) {
             return NULL;
         }
     }
-    return read_fd( src_fd );
+    return read_fd( src_fd, body_len );
 //    unsigned int counter = 0;
 //    uint8_t temp = 0;
 //
@@ -349,8 +357,19 @@ char * get_expires( size_t minutes ) {
 
 bool file_exists( char * path ) {
     struct stat st;
-    bool status = stat( path, &st ) == -1 && errno == ENOENT;
-    return status;
+    if (stat( path, &st ) == -1) {
+        if (errno == ENOENT
+                || errno == EACCES
+                || errno == EAGAIN
+                || errno == ENOMEM
+                || errno == EOVERFLOW) {
+            return false;
+        }
+        fprintf(stderr, "Error checking existence of file: %s", strerror(errno));
+        exit(ERRNO_ERROR);
+    }
+
+    return S_ISREG(st.st_mode);
 }
 
 

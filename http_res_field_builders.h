@@ -31,7 +31,7 @@ bool path_in_bounds( char * path );
 
 bool is_simple_req( char * request_type );
 
-char * prepare_entity_body( char * path );
+char * prepare_entity_body( char * path, size_t * body_len );
 
 char * get_date();
 
