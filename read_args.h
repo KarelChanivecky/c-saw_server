@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <getopt.h>
 
+    
 char** get_args(int argc, char **argv);
+
 
 #endif /* read_args_h */

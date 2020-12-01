@@ -14,6 +14,6 @@
 #include <stdlib.h>
 #include <libconfig.h>
 
-int read_confg_file(server_config_t * server_cfgs);
+int read_confg_file(config_t* cfg, server_config_t * server_cfgs);
 
 #endif /* read_config_file_h */

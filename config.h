@@ -16,6 +16,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int get_config(server_config_t * server_cfgs, int argc, char ** argv);
+int get_config(config_t* cfg, server_config_t * server_cfgs, int argc, char ** argv);
 
 #endif /* config_h */
