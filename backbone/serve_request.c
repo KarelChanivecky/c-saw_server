@@ -9,7 +9,7 @@
 #include "serve_request.h"
 #include "logging.h"
 #include "../return_codes.h"
-#include "../http_res_field_builders.h"
+#include "../handle_req.h"
 
 #include <dc/unistd.h>
 #include <dc/semaphore.h>
@@ -19,7 +19,6 @@
 #include <semaphore.h>
 #include <stdio.h>
 #include <errno.h>
-
 
 
 char * get_request_string( int conn_fd, size_t buffer_size ) {
@@ -33,7 +32,7 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
         size_t bytes_read = dc_read( conn_fd, buffer, buffer_size );
         total_bytes_read += bytes_read;
 
-        if ( (long long)allocated_space - (long long)total_bytes_read < 0 ) {
+        if (( long long ) allocated_space - ( long long ) total_bytes_read < 0 ) {
             req_string = dc_realloc( req_string,
                                      sizeof( char ) * allocated_space + ( buffer_size * READ_ALLOC_COEFF ));
         }
@@ -46,7 +45,7 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
         }
     }
     req_string = dc_realloc( req_string, sizeof( char ) * ( total_bytes_read + 1 ));
-    req_string[total_bytes_read] = 0;
+    req_string[ total_bytes_read ] = 0;
     return req_string;
 }
 
@@ -72,33 +71,37 @@ void * serve_request( void * v_args ) {
 
     int conn_fd = args.conn_fd;
     char * req_string = get_request_string( conn_fd, server_cfg.read_buffer_size );
-    log_requester(conn_fd);
-    printf("REQUEST\n%s", req_string);
-//    http_req_t req;
-//    int req_parse_status = parse_http_req( &req, req_string );
-//     possibly error check?
-//    http_res_t res;
-//    int res_handle_status = handle_req( &req, &res );
-//     possibly error check?
-//    char * res_string = http_res_encode( &res );
-//    if ( server_cfg.log_connections ) {
-//        log_action( conn_fd, req, res );
-//    }
-//    write_res_string(conn_fd, res_string, server_cfg.write_buffer_size);
-
-    if (write_res_string( conn_fd, req_string, server_cfg.write_buffer_size )
-        ==
-        BYTES_WRITTEN_MISS_MATCH
-        &&
-        server_cfg.log_connections) {
-
-        fprintf(stderr, "Error writing to socket while responding %s", strerror(errno));
+    log_requester( conn_fd );
+    printf( "REQUEST\n%s", req_string );
+    http_req_t req;
+    int req_parse_status = parse_http_req( &req, req_string );
+//    possibly
+//    error
+//    check ?
+    http_res_t res;
+    int res_handle_status = handle_req( &req, &res, &server_cfg );
+//    possibly
+//    error
+//    check ?
+    char * res_string = http_res_encode( &res );
+    if ( server_cfg.log_connections ) {
+        log_action( conn_fd, req, res );
     }
 
-//        free(res_string);
+    if ( write_res_string( conn_fd, res_string, server_cfg.write_buffer_size )
+
+         ==
+         BYTES_WRITTEN_MISS_MATCH
+         &&
+         server_cfg.log_connections ) {
+
+        fprintf( stderr, "Error writing to socket while responding %s", strerror(errno));
+    }
+
+    free( res_string );
     dc_close( args.conn_fd );
     dc_sem_post( concurrent_conn_sem );
     free( req_string );
-    free(v_args);
+    free( v_args );
     return NULL;
 }

@@ -41,7 +41,7 @@
 #define REASON_505 "Internal server error"
 #define REASON_501 "Not Implemented"
 
-struct http_date{
+struct http_date {
     int month;
     int date;
     int year;
@@ -88,11 +88,11 @@ char * make_status_field( int code ) {
     char code_str[4];
     sprintf( code_str, "%d", code );
 
-    strncat( status_line, HTTP_VERSION, strlen( HTTP_VERSION ) + 1);
+    strncat( status_line, HTTP_VERSION, strlen( HTTP_VERSION ) + 1 );
     strncat( status_line, SP, 2 );
     strncat( status_line, code_str, 4 );
     strncat( status_line, SP, 2 );
-    strncat( status_line, reason, strlen( reason ) + 1);
+    strncat( status_line, reason, strlen( reason ) + 1 );
     return status_line;
 }
 
@@ -111,7 +111,7 @@ char * make_last_modified( char * path ) {
     size_t time_len = strftime( time_str, MAX_TIME_STR_LEN, HTTP_TIME_FORMAT, &last_modified_tm );
     size_t last_modified_len = strlen( LAST_MODIFIED_FIELD_NAME ) + time_len + 3; // : SP and null byte
     char * last_modified_str = ( char * ) dc_malloc( last_modified_len );
-    strncat( last_modified_str, LAST_MODIFIED_FIELD_NAME, strlen( LAST_MODIFIED_FIELD_NAME ) + 1);
+    strncat( last_modified_str, LAST_MODIFIED_FIELD_NAME, strlen( LAST_MODIFIED_FIELD_NAME ) + 1 );
     strncat( last_modified_str, SEPARATOR, 3 );
     strncat( last_modified_str, time_str, time_len + 1 );
     return last_modified_str;
@@ -128,9 +128,9 @@ char * make_content_length( char * path ) {
     size_t content_length_str_len =
             strlen( CONTENT_LENGTH_FIELD_NAME ) + digits_in_size + 3; // separator, null byte
     char * content_length_str = ( char * ) dc_malloc( sizeof( char ) * content_length_str_len );
-    strncat( content_length_str, CONTENT_LENGTH_FIELD_NAME, strlen( CONTENT_LENGTH_FIELD_NAME ) + 1);
+    strncat( content_length_str, CONTENT_LENGTH_FIELD_NAME, strlen( CONTENT_LENGTH_FIELD_NAME ) + 1 );
     strncat( content_length_str, SEPARATOR, 3 );
-    strncat( content_length_str, file_size, digits_in_size + 1);
+    strncat( content_length_str, file_size, digits_in_size + 1 );
     return content_length_str;
 }
 
@@ -165,216 +165,215 @@ void execute_file( int out, char * path ) {
     }
 }
 
-char * read_type( int src) {
+char * read_type( int src ) {
     char content_type_buf[MAX_CONTENT_TYPE_LENGTH];
     size_t bytes_read = dc_read( src, content_type_buf, MAX_CONTENT_TYPE_LENGTH );
     char * content_type_str = ( char * ) dc_malloc( sizeof( char ) * bytes_read + 1 );
     strncpy( content_type_str, content_type_buf, bytes_read );
-    content_type_str[ bytes_read ] = 0;
+    content_type_str[bytes_read] = 0;
     return content_type_str;
 
 }
 
-char * get_content_type( char * path) {
+char * get_content_type( char * path ) {
     int fds[2];
     dc_pipe( fds );
-    execute_file( fds[ 1 ], path);
-    char * content_type = read_type( fds[ 0 ] );
-    dc_close( fds[ 0 ] );
-    dc_close( fds[ 1 ] );
+    execute_file( fds[1], path );
+    char * content_type = read_type( fds[0] );
+    dc_close( fds[0] );
+    dc_close( fds[1] );
     return content_type;
 }
 
 
 char * make_content_type( char * path ) {
-    char * content_type = get_content_type(path);
-    size_t content_type_field_len = strlen(content_type) + strlen(CONTENT_TYPE_FIELD_NAME) + 2; // separator
-    char * content_type_field = (char *) dc_malloc(sizeof(char ) * content_type_field_len + 1);
-    strncat(content_type_field, CONTENT_TYPE_FIELD_NAME, strlen(CONTENT_TYPE_FIELD_NAME) + 1);
-    strncat(content_type_field, SEPARATOR, 3);
-    strncat(content_type_field, content_type, strlen(content_type) + 1);
-    free(content_type);
+    char * content_type = get_content_type( path );
+    size_t content_type_field_len = strlen( content_type ) + strlen( CONTENT_TYPE_FIELD_NAME ) + 2; // separator
+    char * content_type_field = ( char * ) dc_malloc( sizeof( char ) * content_type_field_len + 1 );
+    strncat( content_type_field, CONTENT_TYPE_FIELD_NAME, strlen( CONTENT_TYPE_FIELD_NAME ) + 1 );
+    strncat( content_type_field, SEPARATOR, 3 );
+    strncat( content_type_field, content_type, strlen( content_type ) + 1 );
+    free( content_type );
     return content_type_field;
 }
 
-#define BLOCK 17
+#define INITIAL_TOKEN_ALLOC_COUNT 17
 #define DATE_BLOCK 35
-#define MINUTES_IN_HOUR 60
-#define HOUR_IN_A_DAY 60
 #define SIMPLE_REQUEST "Simple-Request"
 #define SERVER_NAME "C-Saw"
 #define ALLOWED_METHODS "GET/HEAD"
 #define BYTES_PER_CYCLE 1u
 
 
-
-char * delete_leading_whitespaces(char * line){
-    while(isspace((unsigned char)*line))
+char * delete_leading_whitespaces( char * line ) {
+    while ( isspace(( unsigned char ) *line ))
         line++;
     return line;
 }
+
 /**
  * This function is only responsible for checking if the path requested in http request goes beyond the scope of root directory.
  * @param path
  * @return
  */
-bool is_valid_path(char * path){
+bool is_valid_path( char * path ) {
 
     bool is = false;
     int forward_counter = 0;
     int back_counter = 0;
 
-    int len = strlen(path);
+    int len = strlen( path );
     char * buf = path;
 
-    if(path[len-1] == '/'){
-        buf = malloc(sizeof(char *) * (len + 11));
-        strcpy(buf, path);
-        strcat(buf, "index.html");
+    if ( path[len - 1] == '/' ) {
+        buf = malloc( sizeof( char * ) * ( len + 11 ));
+        strcpy( buf, path );
+        strcat( buf, "index.html" );
     }
-    char **args = tokenize_string(buf, "/\0", BLOCK);
+    char ** args = tokenize_string( buf, "/\0", INITIAL_TOKEN_ALLOC_COUNT );
     int i = 0;
-    while(args[i]){
-        if(!strcmp(args[i], ".."))
+    while ( args[i] ) {
+        if ( !strcmp( args[i], ".." ))
             back_counter++;
         else
             forward_counter++;
         i++;
     }
-    free(args);
-    free(buf);
-    if(back_counter > forward_counter)
+    free( args );
+    free( buf );
+    if ( back_counter > forward_counter )
         is = false;
     else
         is = true;
 
 }
 
-bool is_simple_req(char * request_type){
-    char * buffer = delete_leading_whitespaces(request_type);
+bool is_simple_req( char * request_type ) {
+    char * buffer = delete_leading_whitespaces( request_type );
 
-    if(strcmp(buffer, SIMPLE_REQUEST))
+    if ( strcmp( buffer, SIMPLE_REQUEST ))
         return true;
     else
         return false;
 }
 
-void prepare_entity_body(char * path, http_res_t * res){
-    int src_fd = open(path, O_RDONLY);
+void prepare_entity_body( char * path, http_res_t * res ) {
+    int src_fd = open( path, O_RDONLY );
     unsigned int counter = 0;
     uint8_t temp = 0;
 
     size_t c_read;
     c_read = read( src_fd, &temp, BYTES_PER_CYCLE );
-    while(c_read > 0) {
+    while ( c_read > 0 ) {
         counter++;
         c_read = read( src_fd, &temp, BYTES_PER_CYCLE );
     }
 
-    char * body = malloc(sizeof(char) * (counter + 1));
-    close(src_fd);
-    src_fd = open(path, O_RDONLY);
+    char * body = malloc( sizeof( char ) * ( counter + 1 ));
+    close( src_fd );
+    src_fd = open( path, O_RDONLY );
 
     temp = 0;
     c_read = read( src_fd, &temp, BYTES_PER_CYCLE );
-    while(c_read > 0) {
-        strncat(body, &temp, 1);
+    while ( c_read > 0 ) {
+        strncat( body, &temp, 1 );
         c_read = read( src_fd, &temp, BYTES_PER_CYCLE );
     }
 
-    body = strcat(body, "\0");
-    strncat(body, "\0", 1);
+    body = strcat( body, "\0" );
+    strncat( body, "\0", 1 );
     res->body = body;
-    free(body);
+    free( body );
 }
 
-void set_time(http_res_t * res){
+void set_time( http_res_t * res ) {
     char buf[DATE_BLOCK];
-    time_t now = time(0);
-    struct tm tm = *gmtime(&now);
-    int len = strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &tm);
+    time_t now = time( 0 );
+    struct tm tm = *gmtime( &now );
+    int len = strftime( buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &tm );
 
-    char * date = dc_malloc(sizeof(char) * (len+ 2));
-    strcpy(date, buf);
-    strcat(date, "\r\n");
+    char * date = dc_malloc( sizeof( char ) * ( len + 2 ));
+    strcpy( date, buf );
+    strcat( date, "\r\n" );
     res->date = date;
 
-    free(date);
+    free( date );
 }
 
-void set_server(http_res_t * res){
+void set_server( http_res_t * res ) {
 
-    int len = strlen(SERVER_NAME);
-    char * server = dc_malloc(sizeof(char) * (len+ 2));
-    strcpy(server, SERVER_NAME);
-    strcat(server,"\r\n");
+    int len = strlen( SERVER_NAME );
+    char * server = dc_malloc( sizeof( char ) * ( len + 2 ));
+    strcpy( server, SERVER_NAME );
+    strcat( server, "\r\n" );
 
     res->server = server;
-    free(server);
+    free( server );
 }
 
-void set_allow(http_res_t * res){
-    int len = strlen(ALLOWED_METHODS);
-    char * allow = dc_malloc(sizeof(char) * (len+ 2));
-    strcpy(allow, ALLOWED_METHODS);
-    allow = strcat(ALLOWED_METHODS,"\r\n");
+void set_allow( http_res_t * res ) {
+    int len = strlen( ALLOWED_METHODS );
+    char * allow = dc_malloc( sizeof( char ) * ( len + 2 ));
+    strcpy( allow, ALLOWED_METHODS );
+    allow = strcat( ALLOWED_METHODS, "\r\n" );
 
     res->allow = allow;
 
-    free(allow);
+    free( allow );
 }
 
-void set_expires(http_res_t * res, double min){
+void set_expires( http_res_t * res, double min ) {
     char buf[30];
-    time_t now = time(0);
+    time_t now = time( 0 );
 
-    struct tm expire = *gmtime(&now);
+    struct tm expire = *gmtime( &now );
     expire.tm_min += 6594265;
 
-    mktime( &expire);
+    mktime( &expire );
 
-    int len = strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &expire);
-    char * expiry_date = malloc(sizeof(char) * (len+ 2));
-    strcpy(expiry_date, buf);
-    strcat(expiry_date, "\r\n");
+    int len = strftime( buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &expire );
+    char * expiry_date = malloc( sizeof( char ) * ( len + 2 ));
+    strcpy( expiry_date, buf );
+    strcat( expiry_date, "\r\n" );
     res->expires = expiry_date;
 //    printf("Expiry Time is: [%s]\n", expiry_date);
-    free(expiry_date);
+    free( expiry_date );
 }
 
-bool file_exists(char * path, char * root){
+bool file_exists( char * path, char * root ) {
     bool is_true = false;
-    int root_len = strlen(root);
-    int path_len = strlen(path);
-    char * buf_path = malloc(sizeof(char *) * (root_len + path_len));
-    char *buf_root = malloc(sizeof(char *) * (root_len));
+    int root_len = strlen( root );
+    int path_len = strlen( path );
+    char * buf_path = malloc( sizeof( char * ) * ( root_len + path_len ));
+    char * buf_root = malloc( sizeof( char * ) * ( root_len ));
 
-    if(root[root_len - 1] == '/'){
-        strncpy(buf_root, root, root_len-1);
+    if ( root[root_len - 1] == '/' ) {
+        strncpy( buf_root, root, root_len - 1 );
         buf_path = buf_root;
-        strcat(buf_path, path);
+        strcat( buf_path, path );
     }
-    printf("path: %s", buf_path);
-    int fd = open(buf_path, O_RDONLY);
-    if(fd == -1)
+    printf( "path: %s", buf_path );
+    int fd = open( buf_path, O_RDONLY );
+    if ( fd == -1 )
         is_true = false;
     else is_true = true;
-    free(buf_path);
+    free( buf_path );
     return is_true;
 }
-char *create_path(char * path, char * root){
-    int root_len = strlen(root);
-    int path_len = strlen(path);
-    char * buf_path = malloc(sizeof(char *) * (root_len + path_len));
-    char *buf_root = malloc(sizeof(char *) * (root_len));
 
-    if(root[root_len - 1] == '/'){
-        strncpy(buf_root, root, root_len-1);
+char * create_path( char * path, char * root ) {
+    int root_len = strlen( root );
+    int path_len = strlen( path );
+    char * buf_path = malloc( sizeof( char * ) * ( root_len + path_len ));
+    char * buf_root = malloc( sizeof( char * ) * ( root_len ));
+
+    if ( root[root_len - 1] == '/' ) {
+        strncpy( buf_root, root, root_len - 1 );
         buf_path = buf_root;
-        strcat(buf_path, path);
+        strcat( buf_path, path );
     }
-    printf("path: %s", buf_path);
-    int fd = open(buf_path, O_RDONLY);
+    printf( "path: %s", buf_path );
+    int fd = open( buf_path, O_RDONLY );
 
 
     return buf_path;
@@ -385,78 +384,78 @@ char *create_path(char * path, char * root){
  * type 2 represents Sunday, 06-Nov-94 08:49:37 GMT
  * type 3 represents Sun Nov  6 08:49:37 1994
  */
-size_t get_type_of_date(char * date){
-    size_t line_len = strcspn(date, ",");
-    if(line_len == 3)
+size_t get_type_of_date( char * date ) {
+    size_t line_len = strcspn( date, "," );
+    if ( line_len == 3 )
         return 1;
-    else if((line_len > 3) && (line_len <= 10))
+    else if (( line_len > 3 ) && ( line_len <= 10 ))
         return 2;
     else
         return 0;
 }
 
-char **dynamic_tokenize_time(char * req,char * delim){
+char ** dynamic_tokenize_time( char * req, char * delim ) {
     int index = 0;
-    int block = BLOCK;
-    char **args = malloc(sizeof(char*) * block);
-    size_t line_len = strcspn(req, delim);
-    char *token = malloc(sizeof(char) * (line_len + 1));
-    memcpy(token, req, line_len);
+    int block = INITIAL_TOKEN_ALLOC_COUNT;
+    char ** args = malloc( sizeof( char * ) * block );
+    size_t line_len = strcspn( req, delim );
+    char * token = malloc( sizeof( char ) * ( line_len + 1 ));
+    memcpy( token, req, line_len );
     token[line_len] = '\0';
 
-    while(token != NULL){
+    while ( token != NULL) {
         args[index++] = token;
-        if (index >= block) {
-            block += BLOCK;
-            args = realloc(args, block * sizeof(char*));
-            if (!args) {
-                fprintf(stderr, "realloc allocation error\n");
-                exit(EXIT_FAILURE);
+        if ( index >= block ) {
+            block += INITIAL_TOKEN_ALLOC_COUNT;
+            args = realloc( args, block * sizeof( char * ));
+            if ( !args ) {
+                fprintf( stderr, "realloc allocation error\n" );
+                exit( EXIT_FAILURE );
             }
         }
 
         req += line_len + 1;
-        line_len = strcspn(req, delim);
-        if(line_len == 0)
+        line_len = strcspn( req, delim );
+        if ( line_len == 0 )
             break;
         else {
             token = malloc( sizeof( char ) * ( line_len + 1 ));
             memcpy( token, req, line_len );
-            token[ line_len ] = '\0';
+            token[line_len] = '\0';
         }
     }
 
-    free(token);
+    free( token );
 
     return args;
 }
 
 
-int get_month(char * month){
+int get_month( char * month ) {
     int i = 0;
-    if(!strcmp(month, "Jan"))
+    if ( !strcmp( month, "Jan" ))
         i = 1;
-    else if(!strcmp(month, "Feb"))
+    else if ( !strcmp( month, "Feb" ))
         i = 2;
-    else if(!strcmp(month, "Mar"))
+    else if ( !strcmp( month, "Mar" ))
         i = 3;
-    else if(!strcmp(month, "Apr"))
+    else if ( !strcmp( month, "Apr" ))
         i = 4;
-    else if(!strcmp(month, "May"))
+    else if ( !strcmp( month, "May" ))
         i = 5;
-    else if(!strcmp(month, "Jun"))
+    else if ( !strcmp( month, "Jun" ))
         i = 6;
-    else if(!strcmp(month, "Jul"))
+    else if ( !strcmp( month, "Jul" ))
         i = 7;
-    else if(!strcmp(month, "Aug"))
+    else if ( !strcmp( month, "Aug" ))
         i = 8;
-    else if(!strcmp(month, "Sep"))
+    else if ( !strcmp( month, "Sep" ))
         i = 9;
-    else if(!strcmp(month, "Oct"))
+    else if ( !strcmp( month, "Oct" ))
         i = 10;
-    else if(!strcmp(month, "Nov"))
+    else if ( !strcmp( month, "Nov" ))
         i = 11;
-    else if(!strcmp(month, "Dec"))
+    else if ( !strcmp( month, "Dec" ))
         i = 12;
     return i;
 
@@ -466,47 +465,47 @@ int get_month(char * month){
  * type 2 represents Sunday, 06-Nov-94 08:49:37 GMT
  * type 3 represents Sun Nov  6 08:49:37 1994
  */
-bool compare_date_type_1(char * last_mod_date, char * if_mod_date){  //Sun, 06 Nov 1994 08:49:37 GMT"
+bool compare_date_type_1( char * last_mod_date, char * if_mod_date ) {  //Sun, 06 Nov 1994 08:49:37 GMT"
     bool is_modified = false;
     http_date file_date;
     http_date req_date;
-    char **file_last_mod_date = dynamic_tokenize_req(last_mod_date, 1);
-    char **req_last_mod_date = dynamic_tokenize_req(if_mod_date, 1);
+    char ** file_last_mod_date = dynamic_tokenize_req( last_mod_date, 1 );
+    char ** req_last_mod_date = dynamic_tokenize_req( if_mod_date, 1 );
 
-    char **file_last_mod_time = dynamic_tokenize_time(file_last_mod_date[4],":");
-    char **req_last_mod_time = dynamic_tokenize_time(req_last_mod_date[4],":");
+    char ** file_last_mod_time = dynamic_tokenize_time( file_last_mod_date[4], ":" );
+    char ** req_last_mod_time = dynamic_tokenize_time( req_last_mod_date[4], ":" );
 
 
-    file_date.date = atoi(file_last_mod_date[1]);
-    file_date.month = get_month(file_last_mod_date[2]);
-    file_date.year = atoi(file_last_mod_date[3]);
-    file_date.hours = atoi(file_last_mod_time[0]);
-    file_date.minutes = atoi(file_last_mod_time[1]);
-    file_date.seconds = atoi(file_last_mod_time[2]);
+    file_date.date = atoi( file_last_mod_date[1] );
+    file_date.month = get_month( file_last_mod_date[2] );
+    file_date.year = atoi( file_last_mod_date[3] );
+    file_date.hours = atoi( file_last_mod_time[0] );
+    file_date.minutes = atoi( file_last_mod_time[1] );
+    file_date.seconds = atoi( file_last_mod_time[2] );
 
-    req_date.date = atoi(req_last_mod_date[1]);
-    req_date.month = get_month(req_last_mod_date[2]);
-    req_date.year = atoi(req_last_mod_date[3]);
-    req_date.hours = atoi(req_last_mod_time[0]);
-    req_date.minutes = atoi(req_last_mod_time[1]);
-    req_date.seconds = atoi(req_last_mod_time[2]);
+    req_date.date = atoi( req_last_mod_date[1] );
+    req_date.month = get_month( req_last_mod_date[2] );
+    req_date.year = atoi( req_last_mod_date[3] );
+    req_date.hours = atoi( req_last_mod_time[0] );
+    req_date.minutes = atoi( req_last_mod_time[1] );
+    req_date.seconds = atoi( req_last_mod_time[2] );
 
-    if(file_date.year > req_date.year){
+    if ( file_date.year > req_date.year ) {
         is_modified = true;
-    }else{
-        if(file_date.month > req_date.month){
+    } else {
+        if ( file_date.month > req_date.month ) {
             is_modified = true;
-        }else{
-            if(file_date.date > req_date.date){
+        } else {
+            if ( file_date.date > req_date.date ) {
                 is_modified = true;
-            }else{
-                if(file_date.hours > req_date.hours){
-                    is_modified =true;
-                }else{
-                    if(file_date.minutes > req_date.minutes){
+            } else {
+                if ( file_date.hours > req_date.hours ) {
+                    is_modified = true;
+                } else {
+                    if ( file_date.minutes > req_date.minutes ) {
                         is_modified = true;
-                    }else{
-                        if(file_date.seconds > req_date.seconds){
+                    } else {
+                        if ( file_date.seconds > req_date.seconds ) {
                             is_modified = true;
                         }
                     }
@@ -523,62 +522,56 @@ bool compare_date_type_1(char * last_mod_date, char * if_mod_date){  //Sun, 06 N
  * type 2 represents Sunday, 06-Nov-94 08:49:37 GMT
  * type 3 represents Sun Nov  6 08:49:37 1994
  */
-bool compare_date_type_2(char * last_mod_date, char * if_mod_date){ //Sunday, 06-Nov-94 08:49:37 GMT
+bool compare_date_type_2( char * last_mod_date, char * if_mod_date ) { //Sunday, 06-Nov-94 08:49:37 GMT
     bool is_modified = false;
     http_date file_date;
     http_date req_date;
-    char **file_last_mod_date = dynamic_tokenize_req(last_mod_date, 1);
-    char **req_last_mod_date = dynamic_tokenize_req(if_mod_date, 1);
+    char ** file_last_mod_date = dynamic_tokenize_req( last_mod_date, 1 );
+    char ** req_last_mod_date = dynamic_tokenize_req( if_mod_date, 1 );
 
 //    char **file_last_mod_calender_date = dynamic_tokenize_time(file_last_mod_date[1], "-");
-    char **req_last_mod_calender_date = dynamic_tokenize_time(req_last_mod_date[1], "-");
+    char ** req_last_mod_calender_date = dynamic_tokenize_time( req_last_mod_date[1], "-" );
 
-    char **file_last_mod_time = dynamic_tokenize_time(file_last_mod_date[2], ":");
-    char **req_last_mod_time = dynamic_tokenize_time(req_last_mod_date[2], ":");
+    char ** file_last_mod_time = dynamic_tokenize_time( file_last_mod_date[2], ":" );
+    char ** req_last_mod_time = dynamic_tokenize_time( req_last_mod_date[2], ":" );
 
-    file_date.date = atoi(file_last_mod_date[1]);
-    file_date.month = get_month(file_last_mod_date[2]);
-    file_date.year = atoi(file_last_mod_date[3]);
-    file_date.hours = atoi(file_last_mod_time[0]);
-    file_date.minutes = atoi(file_last_mod_time[1]);
-    file_date.seconds = atoi(file_last_mod_time[2]);
+    file_date.date = atoi( file_last_mod_date[1] );
+    file_date.month = get_month( file_last_mod_date[2] );
+    file_date.year = atoi( file_last_mod_date[3] );
+    file_date.hours = atoi( file_last_mod_time[0] );
+    file_date.minutes = atoi( file_last_mod_time[1] );
+    file_date.seconds = atoi( file_last_mod_time[2] );
 
-    req_date.date = atoi(req_last_mod_calender_date[0]);
-    req_date.month = get_month(req_last_mod_calender_date[1]);
-    req_date.year = atoi(req_last_mod_calender_date[2]);
-    req_date.hours = atoi(req_last_mod_time[0]);
-    req_date.minutes = atoi(req_last_mod_time[1]);
-    req_date.seconds = atoi(req_last_mod_time[2]);
+    req_date.date = atoi( req_last_mod_calender_date[0] );
+    req_date.month = get_month( req_last_mod_calender_date[1] );
+    req_date.year = atoi( req_last_mod_calender_date[2] );
+    req_date.hours = atoi( req_last_mod_time[0] );
+    req_date.minutes = atoi( req_last_mod_time[1] );
+    req_date.seconds = atoi( req_last_mod_time[2] );
 
-    if(req_date.year <= 30)
+    if ( req_date.year <= 30 )
         req_date.year += 2000;
     else
         req_date.year += 1900;
 
-    if(file_date.year > req_date.year){
+    if ( file_date.year > req_date.year ) {
         is_modified = true;
-    }else{
-        if(file_date.month > req_date.month){
-            is_modified = true;
-        }else{
-            if(file_date.date > req_date.date){
-                is_modified = true;
-            }else{
-                if(file_date.hours > req_date.hours){
-                    is_modified =true;
-                }else{
-                    if(file_date.minutes > req_date.minutes){
-                        is_modified = true;
-                    }else{
-                        if(file_date.seconds > req_date.seconds){
-                            is_modified = true;
-                        }
-                    }
-                }
-            }
-        }
     }
-
+    if ( file_date.month > req_date.month ) {
+        is_modified = true;
+    }
+    if ( file_date.date > req_date.date ) {
+        is_modified = true;
+    }
+    if ( file_date.hours > req_date.hours ) {
+        is_modified = true;
+    }
+    if ( file_date.minutes > req_date.minutes ) {
+        is_modified = true;
+    }
+    if ( file_date.seconds > req_date.seconds ) {
+        is_modified = true;
+    }
     return is_modified;
 }
 /*
@@ -586,46 +579,46 @@ bool compare_date_type_2(char * last_mod_date, char * if_mod_date){ //Sunday, 06
  * type 2 represents Sunday, 06-Nov-94 08:49:37 GMT
  * type 3 represents Sun Nov  6 08:49:37 1994
  */
-bool compare_date_type_3(char * last_mod_date, char * if_mod_date){ //"Sun Nov  6 08:49:37 1994"
+bool compare_date_type_3( char * last_mod_date, char * if_mod_date ) { //"Sun Nov  6 08:49:37 1994"
     bool is_modified;
     http_date file_date;
     http_date req_date;
-    char **file_last_mod_date = dynamic_tokenize_req(last_mod_date, 1);
-    char **req_last_mod_date = dynamic_tokenize_req(if_mod_date, 1);
+    char ** file_last_mod_date = dynamic_tokenize_req( last_mod_date, 1 );
+    char ** req_last_mod_date = dynamic_tokenize_req( if_mod_date, 1 );
 
-    char **file_last_mod_time = dynamic_tokenize_time(file_last_mod_date[2], ":");
-    char **req_last_mod_time = dynamic_tokenize_time(req_last_mod_date[2], ":");
+    char ** file_last_mod_time = dynamic_tokenize_time( file_last_mod_date[2], ":" );
+    char ** req_last_mod_time = dynamic_tokenize_time( req_last_mod_date[2], ":" );
 
-    file_date.date = atoi(file_last_mod_date[1]);
-    file_date.month = get_month(file_last_mod_date[2]);
-    file_date.year = atoi(file_last_mod_date[3]);
-    file_date.hours = atoi(file_last_mod_time[0]);
-    file_date.minutes = atoi(file_last_mod_time[1]);
-    file_date.seconds = atoi(file_last_mod_time[2]);
+    file_date.date = atoi( file_last_mod_date[1] );
+    file_date.month = get_month( file_last_mod_date[2] );
+    file_date.year = atoi( file_last_mod_date[3] );
+    file_date.hours = atoi( file_last_mod_time[0] );
+    file_date.minutes = atoi( file_last_mod_time[1] );
+    file_date.seconds = atoi( file_last_mod_time[2] );
 
-    req_date.date = atoi(req_last_mod_date[2]);
-    req_date.month = get_month(req_last_mod_date[1]);
-    req_date.year = atoi(req_last_mod_date[4]);
-    req_date.hours = atoi(req_last_mod_time[0]);
-    req_date.minutes = atoi(req_last_mod_time[1]);
-    req_date.seconds = atoi(req_last_mod_time[2]);
+    req_date.date = atoi( req_last_mod_date[2] );
+    req_date.month = get_month( req_last_mod_date[1] );
+    req_date.year = atoi( req_last_mod_date[4] );
+    req_date.hours = atoi( req_last_mod_time[0] );
+    req_date.minutes = atoi( req_last_mod_time[1] );
+    req_date.seconds = atoi( req_last_mod_time[2] );
 
-    if(file_date.year > req_date.year){
+    if ( file_date.year > req_date.year ) {
         is_modified = true;
-    }else{
-        if(file_date.month > req_date.month){
+    } else {
+        if ( file_date.month > req_date.month ) {
             is_modified = true;
-        }else{
-            if(file_date.date > req_date.date){
+        } else {
+            if ( file_date.date > req_date.date ) {
                 is_modified = true;
-            }else{
-                if(file_date.hours > req_date.hours){
-                    is_modified =true;
-                }else{
-                    if(file_date.minutes > req_date.minutes){
+            } else {
+                if ( file_date.hours > req_date.hours ) {
+                    is_modified = true;
+                } else {
+                    if ( file_date.minutes > req_date.minutes ) {
                         is_modified = true;
-                    }else{
-                        if(file_date.seconds > req_date.seconds){
+                    } else {
+                        if ( file_date.seconds > req_date.seconds ) {
                             is_modified = true;
                         }
                     }
@@ -641,46 +634,47 @@ bool compare_date_type_3(char * last_mod_date, char * if_mod_date){ //"Sun Nov  
  * type 2 represents Sunday, 06-Nov-94 08:49:37 GMT
  * type 3 represents Sun Nov  6 08:49:37 1994
  */
-bool compare_dates(char * last_mod_date, char * if_mod_date){
+bool compare_dates( char * last_mod_date, char * if_mod_date ) {
     bool is_modified_after_asked_date = false;
     size_t type_of_date = 0;
-    type_of_date = get_type_of_date(last_mod_date);
-    switch(type_of_date){
+    type_of_date = get_type_of_date( last_mod_date );
+    switch ( type_of_date ) {
         case 1:
-            is_modified_after_asked_date = compare_date_type_1(last_mod_date, if_mod_date);
+            is_modified_after_asked_date = compare_date_type_1( last_mod_date, if_mod_date );
             break;
         case 2:
-            is_modified_after_asked_date = compare_date_type_2(last_mod_date, if_mod_date);
+            is_modified_after_asked_date = compare_date_type_2( last_mod_date, if_mod_date );
             break;
         case 0:
-            is_modified_after_asked_date = compare_date_type_3(last_mod_date, if_mod_date);
+            is_modified_after_asked_date = compare_date_type_3( last_mod_date, if_mod_date );
             break;
     }
     return is_modified_after_asked_date;
 }
-bool file_modified_after_requested_if_moddified_date(char * path, char *root, char * if_mod_date){
+
+bool file_modified_after_requested_if_modified_date( char * path, char * root, char * if_mod_date ) {
     bool is_modified = false;
     char buf[DATE_BLOCK];
     struct stat file_stat;
-    char * buf_path = create_path(path, root);
-    stat(buf_path, &file_stat);
+    char * buf_path = create_path( path, root );
+    stat( buf_path, &file_stat );
     struct tm last_modified_tm;
     gmtime_r( &file_stat.st_mtim.tv_sec, &last_modified_tm );
 
-    int len = strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &last_modified_tm);
+    int len = strftime( buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &last_modified_tm );
 
-    char * last_modified_date = malloc(sizeof(char) * (len+ 2));
-    strcpy(last_modified_date, buf);
+    char * last_modified_date = malloc( sizeof( char ) * ( len + 2 ));
+    strcpy( last_modified_date, buf );
 
-    is_modified = compare_dates(last_modified_date, if_mod_date);
+    is_modified = compare_dates( last_modified_date, if_mod_date );
 
     return is_modified;
 }
 
-bool prepare_common_headers(http_res_t * res){
-    set_server(&res);
-    set_time(&res);
-    set_allow(&res);
-    set_expires(&res, 900); //TODO get the second parameter from config.
+bool prepare_common_headers( http_res_t * res ) {
+    set_server( &res );
+    set_time( &res );
+    set_allow( &res );
+    set_expires( &res, 900 ); //TODO get the second parameter from config.
 }
 

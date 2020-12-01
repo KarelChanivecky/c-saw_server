@@ -44,6 +44,6 @@ bool prepare_common_headers(http_res_t * res);
 
 bool file_exists(char * path, char * root);
 
-bool file_modified_after_requested_if_moddified_date(char * path, char *root, char * if_mod_date);
+bool file_modified_after_requested_if_modified_date( char * path, char *root, char * if_mod_date);
 
 #endif //C_SAW_SERVER_HTTP_RES_FIELD_BUILDERS_H

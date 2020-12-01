@@ -14,7 +14,7 @@
 #include "async_serving_v2.h"
 
 
-#include "../handle_req.h"
+
 
 #include <dc/sys/socket.h>
 #include "logging.h"

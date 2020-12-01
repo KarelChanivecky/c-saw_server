@@ -40,7 +40,7 @@ int check_method( http_req_t req ) {
 bool check_modified_since( http_req_t req ) {
     struct stat file_stat;
     stat( req.request_URI, &file_stat );
-
+    
     struct tm since_time_tm;
     char * since_matched = strptime(req.if_modified_since, HTTP_TIME_FORMAT, &since_time_tm);
     if (since_matched == NULL) {
