@@ -1,1 +1,0 @@
-/usr/bin/cc -fPIC -shared -Wl,-soname,libspawned_async.so -o libspawned_async.so CMakeFiles/spawned_async.dir/backbone/async_serving_v1.c.o 
