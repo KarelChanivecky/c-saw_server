@@ -9,7 +9,7 @@
 #ifndef C_SAW_SERVER_HTTP_REQ_PARSER_H
 #define C_SAW_SERVER_HTTP_REQ_PARSER_H
 
-#define DEFAULT_ABS_PATH /
+#define URI_PATH_DELIMITER '/'
 
 struct http_req_t {
     char * request_type;
@@ -30,7 +30,5 @@ typedef struct http_req_t http_req_t;
    the availability of methods other than GET.
  */
 int parse_http_req(http_req_t * req, char * req_string);
-char **tokenize_string( char * line, const char *delim, int i);
-char **dynamic_tokenize_req(char * req, int delimeter_len);
 
 #endif //C_SAW_SERVER_HTTP_REQ_PARSER_H

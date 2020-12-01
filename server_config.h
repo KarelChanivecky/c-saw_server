@@ -32,6 +32,7 @@ struct server_config_t {
     char * content_root_dir_path;
     char * page_404_path;
     bool concurrency_model;
+    size_t page_expiration_time_mins;
 };
 
 typedef struct server_config_t server_config_t;

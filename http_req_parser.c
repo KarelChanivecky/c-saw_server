@@ -1,13 +1,10 @@
 #include <string.h>
 #include <stdlib.h>
-#include "stdio.h"
-#include "dc/stdlib.h"
 
 #include "http_req_parser.h"
 #include "return_codes.h"
 #include "string_allocation.h"
 
-#define INITIAL_TOKEN_ALLOC_COUNT 10
 #define BLOCK_FOR_REQUEST_LINE 17
 #define AUTH "Authorization"
 #define IF_MODIFIED_SINCE "If-Modified-Since"
@@ -16,8 +13,6 @@
 #define USER_AGENT "User-Agent"
 #define SIMPLE_REQUEST "Simple-Request"
 #define FULL_REQUEST "Full-Request"
-#define URI_PATH_DELIMITER '/'
-#define SUCCESS 0
 #define STATUS_LINE_INDEX 0
 #define FIELD_NAME_INDEX 0
 #define FIELD_VALUE_INDEX 1
@@ -35,85 +30,25 @@ void free_parsed_request_line(char ** parsed_request_line) {
     free(parsed_request_line);
 }
 
-
-char ** tokenize_string( char * line, const char * delim, int i ) {
-    int block = i;
-    int index = 0;
-
+int tokenize_header(char * container[], char * req_string, const char * delimiter ) {
+    if (req_string == NULL) {
+        return INVALID_HEADER_FIELD;
+    }
 
     char * buffer;
-    char ** args = dc_malloc( sizeof( char * ) * block );
+    buffer = strtok( req_string, delimiter );
+    container[FIELD_NAME_INDEX] = alloc_string(buffer);
 
-    buffer = strtok( line, delim );
+    buffer = strtok(NULL, "\0");
 
-    char * token = alloc_string( buffer );
-
-    while ( token != NULL) {
-
-        args[index] = token;
-        index++;
-
-        if ( index >= block ) {
-            block += INITIAL_TOKEN_ALLOC_COUNT;
-            args = realloc( args, block * sizeof( char * ));
-            if ( !args ) {
-                fprintf( stderr, "realloc allocation error\n" );
-                exit( EXIT_FAILURE );
-            }
-        }
-
-        buffer = strtok(NULL, delim );
-        if ( buffer != NULL) {
-            token = alloc_string( buffer );
-        } else {
-            token = NULL;
-        }
+    if (!buffer) {
+        return INVALID_HEADER_FIELD;
     }
-    args[index] = NULL;
 
-    return args;
+    container[FIELD_VALUE_INDEX] = alloc_string(buffer);
+    return SUCCESS;
 }
 
-char ** dynamic_tokenize_req( char * req, int delimeter_len ) {
-    int index = 0;
-    int block = INITIAL_TOKEN_ALLOC_COUNT;
-
-    size_t line_len = strcspn( req, "\r\n" );
-    if ( line_len == 0 ) {
-        return NULL;
-    }
-
-    char ** args = dc_malloc( sizeof( char * ) * block );
-    char * token = dc_malloc( sizeof( char ) * ( line_len + 1 ));
-    strncpy( token, req, line_len );
-    token[line_len] = '\0';
-
-    while ( token != NULL) {
-        args[index] = token;
-        index++;
-
-        if ( index >= block ) {
-            block += INITIAL_TOKEN_ALLOC_COUNT;
-            args = realloc( args, block * sizeof( char * ));
-            if ( !args ) {
-                fprintf( stderr, "realloc allocation error\n" );
-                exit( EXIT_FAILURE );
-            }
-        }
-
-        req += line_len + delimeter_len;
-        line_len = strcspn( req, "\r\n" );
-        if ( 0 < line_len ) {
-            token = NULL;
-        } else {
-            token = dc_malloc( sizeof( char ) * ( line_len + 1 ));
-            memcpy( token, req, line_len );
-            token[line_len] = '\0';
-        }
-    }
-
-    return args;
-}
 
 int setup_request_line( http_req_t * req, char ** parsed_request_line ) {
     req->method = alloc_string( parsed_request_line[0] );
@@ -151,24 +86,6 @@ void initialize_req( http_req_t * req ) {
     req->user_agent = NULL;
 }
 
-int tokenize_header(char * container[], char * req_string, const char * delimiter ) {
-    if (req_string == NULL) {
-        return INVALID_HEADER_FIELD;
-    }
-
-    char * buffer;
-    buffer = strtok( req_string, delimiter );
-    container[FIELD_NAME_INDEX] = alloc_string(buffer);
-
-    buffer = strtok(NULL, "\0");
-
-    if (!buffer) {
-        return INVALID_HEADER_FIELD;
-    }
-
-    container[FIELD_VALUE_INDEX] = alloc_string(buffer);
-    return SUCCESS;
-}
 
 
 int parse_http_req( http_req_t * req, char * req_string ) {

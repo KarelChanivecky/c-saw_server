@@ -12,6 +12,7 @@
 #include "server_config.h"
 #include "http_req_parser.h"
 #include "http_res_encoder.h"
+#include "string_allocation.h"
 
 #define HTTP_TIME_FORMAT "%a, %d %b %Y %T %x"
 #define REQ_END "\r\n"
@@ -38,9 +39,9 @@ void set_server(http_res_t * res);
 
 void set_allow(http_res_t * res);
 
-void set_expires(http_res_t * res, double min);
+void set_expires(http_res_t * res, size_t minutes);
 
-bool prepare_common_headers(http_res_t * res);
+bool prepare_common_headers(http_res_t * res, server_config_t * server_cfg);
 
 bool file_exists(char * path, char * root);
 

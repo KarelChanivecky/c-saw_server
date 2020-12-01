@@ -1,0 +1,6 @@
+/home/karel/Documents/program/COMP-4981_super_dc/c-saw_server/build/CMakeFiles/edit_cache.dir
+/home/karel/Documents/program/COMP-4981_super_dc/c-saw_server/build/CMakeFiles/rebuild_cache.dir
+/home/karel/Documents/program/COMP-4981_super_dc/c-saw_server/build/CMakeFiles/test_http_res_encoder.dir
+/home/karel/Documents/program/COMP-4981_super_dc/c-saw_server/build/CMakeFiles/c_saw_server.dir
+/home/karel/Documents/program/COMP-4981_super_dc/c-saw_server/build/CMakeFiles/pooled_async.dir
+/home/karel/Documents/program/COMP-4981_super_dc/c-saw_server/build/CMakeFiles/spawned_async.dir

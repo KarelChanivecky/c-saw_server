@@ -62,23 +62,23 @@ int prepare_get_response( http_req_t * req, http_res_t * res, server_config_t * 
     }
 }
 
-int prepare_head_response( http_req_t * req, http_res_t * res, server_config_t * config ) {
+int prepare_head_response( http_req_t * req, http_res_t * res, server_config_t * server_cfg ) {
     if ( is_valid_path( req->request_URI ))
-        if ( file_exists( req->request_URI, config->content_root_dir_path )) {
+        if ( file_exists( req->request_URI, server_cfg->content_root_dir_path )) {
             if ( file_modified_after_requested_if_modified_date( req->request_URI, req->if_modified_since,
-                                                                 config->content_root_dir_path )) { //TODO implement compare_dates func.
+                                                                 server_cfg->content_root_dir_path )) {
                 res->status_line = make_status_field( 200 );
                 res->last_modified = make_last_modified( req->request_URI );
                 res->content_length = make_content_length( req->request_URI );
                 res->content_type = make_content_type( req->request_URI );
-                set_expires( res, config->max_concurrent_conn ); //TODO change it to expiry time from config.
+                set_expires( res , server_cfg->page_expiration_time_mins);
                 return EXIT_SUCCESS;
             } else {
                 res->status_line = make_status_field( 304 );
                 res->last_modified = make_last_modified( req->request_URI );
                 res->content_length = make_content_length( req->request_URI );
                 res->content_type = make_content_type( req->request_URI );
-                set_expires( res, config->max_concurrent_conn ); //TODO change it to expiry time from config.
+                set_expires( res, server_cfg->page_expiration_time_mins );
                 return EXIT_SUCCESS;
             }
         } else {
@@ -95,7 +95,7 @@ int prepare_head_response( http_req_t * req, http_res_t * res, server_config_t *
     }
 }
 
-int handle_req( http_req_t * req, http_res_t * res, server_config_t * config ) {
+int handle_req( http_req_t * req, http_res_t * res, server_config_t * server_cfg ) {
 
     initialize_res( res );
 
@@ -109,13 +109,13 @@ int handle_req( http_req_t * req, http_res_t * res, server_config_t * config ) {
         }
         return EXIT_SUCCESS;
     }
-    prepare_common_headers( res );
+    prepare_common_headers( res, server_cfg);
     if ( strcmp(( req->method ), GET ) == 0 ) {  //if method is GET
-        prepare_get_response( req, res, config );
+        prepare_get_response( req, res, server_cfg );
         return EXIT_SUCCESS;
     }
     if ( strcmp(( req->method ), HEAD ) == 0 ) { //if method is GET
-        prepare_head_response( req, res, config );
+        prepare_head_response( req, res, server_cfg );
         return EXIT_SUCCESS;
     }
     res->status_line = make_status_field( 501 );
