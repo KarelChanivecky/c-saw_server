@@ -9,8 +9,6 @@
 #include "dc/stdlib.h"
 #include <sys/stat.h>
 
-#include "unistd.h"
-#include "write_bin/char_bits.h"
 
 char * alloc_string( char * string ) {
     if ( !string ) {
@@ -125,14 +123,12 @@ char * read_fd( int fd, size_t * body_len ) {
             append_index++;
         }
 
-        write_char_bits(STDOUT_FILENO, buffer, bytes_read * 8);
         bytes_read = dc_read( fd, buffer, DEFAULT_BUFFER_SIZE );
         total_bytes_read += bytes_read;
     }
     printf("\n");
     req_string[ total_bytes_read ] = 0;
     *body_len = total_bytes_read;
-    write_char_bits(STDOUT_FILENO, req_string, total_bytes_read * 8);
     dc_close(fd);
     return req_string;
 }

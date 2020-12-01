@@ -55,6 +55,10 @@ int prepare_get_head_response( http_req_t * req, http_res_t * res, server_config
     res->body = prepare_entity_body( path, body_len );
     if (!res->body) {
         status = STATUS_INTERNAL_SERVER_ERROR;
+        free(res->content_length);
+        res->content_length = NULL;
+        free(res->content_type);
+        res->content_type = NULL;
     }
     res->status_line = make_status_field( status );
     return status;

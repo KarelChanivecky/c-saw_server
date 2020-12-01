@@ -263,7 +263,8 @@ char * prepare_entity_body( char * path, size_t * body_len ) {
         || errno == EACCES
         || errno == EAGAIN
         || errno == ENOMEM
-        || errno == EOVERFLOW) {
+        || errno == EOVERFLOW
+        || errno == ENOTDIR) {
             return NULL;
         }
     }
@@ -362,7 +363,8 @@ bool file_exists( char * path ) {
                 || errno == EACCES
                 || errno == EAGAIN
                 || errno == ENOMEM
-                || errno == EOVERFLOW) {
+                || errno == EOVERFLOW
+                || errno == ENOTDIR) {
             return false;
         }
         fprintf(stderr, "Error checking existence of file: %s", strerror(errno));

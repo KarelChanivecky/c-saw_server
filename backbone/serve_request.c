@@ -51,16 +51,9 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
 }
 
 int write_res_string( int conn_fd, uint8_t * res_string, size_t response_len, size_t write_buffer_size ) {
-    size_t bytes_to_write = write_buffer_size < response_len ? write_buffer_size : response_len;
-    while ( bytes_to_write ) {
-        size_t bytes_written = write( conn_fd, res_string, response_len + 1 );
-        if ( bytes_written != response_len ) {
-            return BYTES_WRITTEN_MISS_MATCH;
-        }
-//        response_len -= bytes_written;
-//        res_string += bytes_written;
-        bytes_to_write = 0;
-//        bytes_to_write = write_buffer_size < response_len ? write_buffer_size : response_len;
+    size_t bytes_written = write( conn_fd, res_string, response_len + 1 );
+    if ( bytes_written != response_len + 1 ) {
+        return BYTES_WRITTEN_MISS_MATCH;
     }
     return SUCCESS;
 }

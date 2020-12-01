@@ -23,34 +23,37 @@
 #define PATH_INDEX 1
 #define PROTOCOL_VERSION_INDEX 2
 
-void free_parsed_request_line(char ** parsed_request_line) {
-    free(parsed_request_line[METHOD_INDEX]);
-    free(parsed_request_line[PATH_INDEX]);
-    if (parsed_request_line[PROTOCOL_VERSION_INDEX]) {
-        free(parsed_request_line[PROTOCOL_VERSION_INDEX]);
+void free_parsed_request_line( char ** parsed_request_line ) {
+    free( parsed_request_line[METHOD_INDEX] );
+    if (parsed_request_line[PATH_INDEX]) {
+        free( parsed_request_line[PATH_INDEX] );
     }
-    free(parsed_request_line);
+    if ( parsed_request_line[PROTOCOL_VERSION_INDEX] ) {
+        free( parsed_request_line[PROTOCOL_VERSION_INDEX] );
+    }
+    free( parsed_request_line );
 }
 
-int tokenize_header(char * container[], char * req_string, const char * delimiter ) {
-    if (req_string == NULL) {
+int tokenize_header( char * container[], char * req_string, const char * delimiter ) {
+    if ( req_string == NULL) {
         return INVALID_HEADER_FIELD;
     }
 
     char * buffer;
     buffer = strtok( req_string, delimiter );
-    container[FIELD_NAME_INDEX] = alloc_string(buffer);
+    container[FIELD_NAME_INDEX] = alloc_string( buffer );
 
-    buffer = strtok(NULL, "\0");
+    buffer = strtok(NULL, "\0" );
 
-    if (!buffer) {
+    if ( !buffer ) {
         return INVALID_HEADER_FIELD;
     }
 
-    container[FIELD_VALUE_INDEX] = alloc_string(buffer);
+    container[FIELD_VALUE_INDEX] = alloc_string( buffer );
     return SUCCESS;
 }
 
+#define INDEX_FILENAME "index.html"
 
 int setup_request_line( http_req_t * req, char ** parsed_request_line, server_config_t * server_cfg ) {
     req->method = alloc_string( parsed_request_line[0] );
@@ -58,8 +61,16 @@ int setup_request_line( http_req_t * req, char ** parsed_request_line, server_co
     if ( parsed_request_line[PATH_INDEX] ) {
         if ( *parsed_request_line[PATH_INDEX] != URI_PATH_DELIMITER ) {
             return INVALID_URI;
+        }
+        char * requested_path = ( parsed_request_line[PATH_INDEX] + 1 );
+        if ( parsed_request_line[PATH_INDEX][strlen( parsed_request_line[PATH_INDEX]  ) - 1] == '/' ) {
+            requested_path = join_strings( requested_path, INDEX_FILENAME );
+            free( parsed_request_line[PATH_INDEX] );
+            parsed_request_line[PATH_INDEX] = NULL;
+            req->request_URI = join_strings( server_cfg->content_root_dir_path, requested_path );
+            free( requested_path );
         } else {
-            req->request_URI = join_strings( server_cfg->content_root_dir_path, (parsed_request_line[PATH_INDEX] + 1) );
+            req->request_URI = join_strings( server_cfg->content_root_dir_path, requested_path );
         }
     }
 
@@ -88,7 +99,6 @@ void initialize_req( http_req_t * req ) {
 }
 
 
-
 int parse_http_req( http_req_t * req, char * req_string, server_config_t * server_cfg ) {
     initialize_req( req );
     char ** lines = dynamic_tokenize_req( req_string, DELIMITER_LENGTH );
@@ -96,7 +106,7 @@ int parse_http_req( http_req_t * req, char * req_string, server_config_t * serve
     char ** parsed_request_line = tokenize_string(
             lines[STATUS_LINE_INDEX], " ", BLOCK_FOR_REQUEST_LINE );
 
-    int result = setup_request_line( req, parsed_request_line, server_cfg);
+    int result = setup_request_line( req, parsed_request_line, server_cfg );
 
     if ( result != 0 ) {
         return result;
@@ -109,7 +119,7 @@ int parse_http_req( http_req_t * req, char * req_string, server_config_t * serve
     int i = FIELD_VALUE_INDEX;
     char * parsed_header[2];
     while ( lines[i] ) {
-        if (tokenize_header(parsed_header, lines[i], ":" ) == INVALID_HEADER_FIELD) {
+        if ( tokenize_header( parsed_header, lines[i], ":" ) == INVALID_HEADER_FIELD ) {
             return INVALID_HEADER_FIELD;
         }
 
