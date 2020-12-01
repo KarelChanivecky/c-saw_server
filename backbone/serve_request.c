@@ -22,6 +22,36 @@
 #include "unistd.h"
 
 
+void free_http_req( http_req_t * req ) {
+    if ( req->if_modified_since ) {
+        free( req->if_modified_since );
+    }
+    if ( req->request_URI ) {
+        free( req->request_URI );
+    }
+    if ( req->request_type ) {
+        free( req->request_type );
+    }
+    if ( req->method ) {
+        free( req->method );
+    }
+    if ( req->protocol_version ) {
+        free( req->protocol_version );
+    }
+    if ( req->referer ) {
+        free( req->referer );
+    }
+    if ( req->user_agent ) {
+        free( req->user_agent );
+    }
+    if ( req->from ) {
+        free( req->from );
+    }
+    if ( req->authorization ) {
+        free( req->authorization );
+    }
+}
+
 char * get_request_string( int conn_fd, size_t buffer_size ) {
     size_t allocated_space = buffer_size * READ_ALLOC_COEFF;
     char * req_string = dc_malloc( sizeof( char ) * buffer_size * READ_ALLOC_COEFF );
@@ -46,7 +76,7 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
         }
     }
     req_string = dc_realloc( req_string, sizeof( char ) * ( total_bytes_read + 1 ));
-    req_string[ total_bytes_read ] = 0;
+    req_string[total_bytes_read] = 0;
     return req_string;
 }
 
@@ -83,8 +113,6 @@ void * serve_request( void * v_args ) {
     }
 
 
-
-
     if ( write_res_string( conn_fd, res_string, body_len, server_cfg.write_buffer_size )
 
          ==
@@ -93,6 +121,7 @@ void * serve_request( void * v_args ) {
          server_cfg.log_connections ) {
         fprintf( stderr, "Error writing to socket while responding %s", strerror(errno));
     }
+    free_http_req( &req );
     free( res_string );
     dc_close( args.conn_fd );
     dc_sem_post( concurrent_conn_sem );

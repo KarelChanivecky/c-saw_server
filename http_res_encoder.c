@@ -51,12 +51,12 @@ uint8_t * http_res_encode(http_res_t * res, size_t * body_len) {
         return res_string;
     }
     strncat((char *)res_string, FIELD_DELIMITER, 3);
-//    strncat((char *)res_string, FIELD_DELIMITER, 3);
     res_string[bytes_to_allocate] = 0;
     while (bytes_to_allocate-- && old_body_len + 1) {
         uint8_t foo = res->body[old_body_len--];
         res_string[bytes_to_allocate] = foo;
     }
+    free(res->body);
     return res_string;
 }
 
