@@ -194,13 +194,13 @@ int main(){
     
     store_configs(menuwin, output, positions, empty_configs_flags);
 
-    write_output("example.cfg", output, empty_configs_flags);
+    write_output("../example.cfg", output, empty_configs_flags);
     
     print_final_msg(height, width);
     
     for (int i = 0; i < 11; i++) {
         free(output[i]);
-        free(previous_values[i]);
+//        free(previous_values[i]);
     }
     free(output);
     free(previous_values);
@@ -298,7 +298,7 @@ char** read_confg_file(config_t* cfg, server_config_t * server_cfgs, int width){
     }
 
     /* Read the file. If there is an error, report it and exit. */
-    if(!config_read_file(cfg, "example.cfg"))
+    if(!config_read_file(cfg, "../example.cfg"))
     {
         fprintf(stderr, "%s:%d - %s\n", config_error_file(cfg),
             config_error_line(cfg), config_error_text(cfg));

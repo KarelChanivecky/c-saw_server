@@ -25,6 +25,10 @@ add_executable(c_saw_server
         backbone/async_process.c
         backbone/serve_request.c string_allocation.c string_allocation.h)
 
+add_executable(n_curses ncurses_main.c)
+target_link_libraries(n_curses ncurses config)
+target_compile_options(c_saw_server PRIVATE -Wpedantic -Wall -Wextra)
+
 target_link_libraries(c_saw_server pthread dc_utils dc config m)
 target_compile_options(c_saw_server PRIVATE -Wpedantic -Wall -Wextra -fPIC)
 

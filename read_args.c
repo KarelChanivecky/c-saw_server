@@ -29,7 +29,7 @@ char** get_args(int argc, char **argv){
         {0, 0, 0, 0}
     };
 
-    char* arg_pattern = "a:b:c:d:e:f:g:h:i:j:k:";
+    char* arg_pattern = "a:b:c:d:e:f:g:h:i:j:k:l:m:";
 
     int option_index = 0;
 

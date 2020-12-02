@@ -53,7 +53,7 @@ int get_config( server_config_t * server_cfgs, int argc, char ** argv ) {
                     server_cfgs->page_404_path = args[i];
                     break;
                 case 10:
-                    server_cfgs->page_404_path = args[i];
+                    server_cfgs->write_buffer_size = atoi( args[i] );
                     break;
                 case 11:
                     server_cfgs->page_expiration_time_mins = atoi( args[i] );
