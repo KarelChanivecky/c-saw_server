@@ -31,7 +31,7 @@ int get_socket( server_config_t * server_cfg ) {
     listen_socket_fd = dc_socket( server_cfg->sin_family, SOCK_STREAM, 0 );
 
     int option = 1;
-    int sock_opt_status = setsockopt( listen_socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
+    int sock_opt_status = setsockopt( listen_socket_fd, SOL_SOCKET, SO_REUSEADDR,
                                       ( char * ) &option, sizeof( option ));
     if ( sock_opt_status == -1 ) {
         fprintf( stderr, "Error setting socket options!: %s", strerror(errno));

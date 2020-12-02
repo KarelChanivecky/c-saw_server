@@ -9,7 +9,7 @@
 #ifndef C_SAW_SERVER_HTTP_RES_TYPE_H
 #define C_SAW_SERVER_HTTP_RES_TYPE_H
 
-#include "../../../../../../usr/include/glob.h"
+#include <glob.h>
 #include "stdlib.h"
 
 // Keep this macro updated

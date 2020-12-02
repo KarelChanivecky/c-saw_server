@@ -49,6 +49,7 @@ int prepare_get_head_response( http_req_t * req, http_res_t * res, server_config
     }
     if ( !path || is_head ) {
         res->body = NULL;
+        res->status_line = make_status_field( status );
         return status;
     }
 

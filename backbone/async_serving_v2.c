@@ -111,8 +111,5 @@ _Noreturn void serve( server_config_t * server_cfg, int listen_socket_fd ) {
         int new_conn = dc_accept( listen_socket_fd, NULL, NULL);
         put_req_fd( new_conn, &async_cfg );
 
-        // reduce or increase the pool size
-        assess_pool_health( handler_pool, server_cfg );
-
     }
 }

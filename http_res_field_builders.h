@@ -14,7 +14,7 @@
 #include "http_res_encoder.h"
 #include "string_allocation.h"
 
-#define HTTP_TIME_FORMAT "%a, %d %b %Y %T %x"
+#define HTTP_TIME_FORMAT "%a, %d %b %Y %T"
 #define REQ_END "\r\n"
 
 char * make_status_field( int code );

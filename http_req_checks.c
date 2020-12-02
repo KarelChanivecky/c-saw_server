@@ -51,6 +51,7 @@ int check_method( http_req_t * req ) {
  * OTH_2 represents Sun Nov  6 08:49:37 1994
  */
 size_t get_type_of_date( char * date ) {
+    date = delete_leading_whitespaces(date);
     size_t line_len = strcspn( date, "," );
     if ( line_len == 3 ) {
         return HTTP_TIME;
@@ -73,6 +74,7 @@ bool check_modified_since( http_req_t * req ) {
     struct tm since_time_tm;
 
     char * date_format;
+    char* absolute_date = delete_leading_whitespaces(req->if_modified_since);
     switch ( get_type_of_date(req->if_modified_since)) {
         case HTTP_TIME:
             date_format = HTTP_TIME_FORMAT;
@@ -84,7 +86,7 @@ bool check_modified_since( http_req_t * req ) {
             date_format = DATE_FORMAT_OTH_2;
             break;
     }
-    char * since_matched = strptime(req->if_modified_since, date_format, &since_time_tm);
+    char * since_matched = strptime(absolute_date, date_format, &since_time_tm);
     if (since_matched == NULL) {
         fprintf( stderr, "Time parsing error at check_modified_since\n");
         exit(EXIT_TIME);

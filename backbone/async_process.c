@@ -15,6 +15,7 @@
 #include <dc_utils/dlinked_list.h>
 #include <dc/stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/un.h>
 #include <sys/socket.h>
 #include <dc/unistd.h>

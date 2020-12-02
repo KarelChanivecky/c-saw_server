@@ -29,6 +29,7 @@ struct server_config_t {
     size_t write_buffer_size;
     int IPC_method;
     bool log_connections;
+    bool pooled;
     char * content_root_dir_path;
     char * page_404_path;
     bool concurrency_model;

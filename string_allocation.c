@@ -91,7 +91,7 @@ char ** dynamic_tokenize_req( char * req, int delimeter_len ) {
 
         req += line_len + delimeter_len;
         line_len = strcspn( req, "\r\n" );
-        if ( 0 < line_len ) {
+        if ( line_len <= 0 ) {
             token = NULL;
         } else {
             token = dc_malloc( sizeof( char ) * ( line_len + 1 ));

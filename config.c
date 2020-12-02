@@ -19,7 +19,7 @@ int get_config( server_config_t * server_cfgs, int argc, char ** argv ) {
     read_confg_file( server_cfgs );
 
     char ** args = get_args( argc, argv );
-    for ( int i = 0; i < 10; i++ )
+    for ( int i = 0; i < 13; i++ )
         if ( args[i] != NULL) {
             switch ( i ) {
                 case 0:
@@ -55,11 +55,28 @@ int get_config( server_config_t * server_cfgs, int argc, char ** argv ) {
                 case 10:
                     server_cfgs->page_404_path = args[i];
                     break;
+                case 11:
+                    server_cfgs->page_expiration_time_mins = atoi( args[i] );
+                    break;
+                case 12:
+                    server_cfgs->pooled = atoi( args[i] );
+                    break;
 
                 default:
                     break;
             }
         }
+    
+    int dir_path_length = strlen(server_cfgs->content_root_dir_path);
+    char c = (server_cfgs->content_root_dir_path)[dir_path_length-1];
+    if (c != '/') {
+        char* path = malloc((dir_path_length + 2)*sizeof(char));
+        strcpy(path, server_cfgs->content_root_dir_path);
+        path[dir_path_length] = '/';
+        path[dir_path_length+1] = '\0';
+        strcpy(server_cfgs->content_root_dir_path, path);
+        free(path);
+    }
     free( args );
     return EXIT_SUCCESS;
 }

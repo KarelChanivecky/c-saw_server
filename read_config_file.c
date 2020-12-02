@@ -36,8 +36,10 @@ int read_confg_file(server_config_t * server_cfgs){
     config_lookup_int(&cfg, "max_open_conn", (int *)&(server_cfgs->max_open_conn));
     config_lookup_int(&cfg, "read_buffer_size", (int *)&(server_cfgs->read_buffer_size));
     config_lookup_int(&cfg, "write_buffer_size", (int *)&(server_cfgs->write_buffer_size));
+    config_lookup_int(&cfg, "page_expiration_time_mins", (int *)&(server_cfgs->page_expiration_time_mins));
     config_lookup_bool(&cfg, "log_connections", (int *)&(server_cfgs->log_connections));
     config_lookup_bool(&cfg, "concurrency_model", (int *)&(server_cfgs->concurrency_model));
+    config_lookup_bool(&cfg, "pooled", (int *)&(server_cfgs->pooled));
     config_lookup_string(&cfg, "content_root_dir_path", &root_dir_path);
     config_lookup_string(&cfg, "page_404_path", &path_404);
 
