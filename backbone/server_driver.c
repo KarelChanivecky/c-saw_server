@@ -17,7 +17,6 @@
 
 
 #include <dc/sys/socket.h>
-#include "logging.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>

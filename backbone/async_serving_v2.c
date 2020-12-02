@@ -8,7 +8,6 @@
 
 #include "async_serving_v2.h"
 
-#include "logging.h"
 #include "serve_request.h"
 #include "async_threading.h"
 #include "async_process.h"

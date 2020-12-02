@@ -7,7 +7,6 @@
  */
 
 #include "serve_request.h"
-#include "logging.h"
 #include "../return_codes.h"
 #include "../handle_req.h"
 
@@ -95,7 +94,7 @@ void * serve_request( void * v_args ) {
 
     int conn_fd = args.conn_fd;
     char * req_string = get_request_string( conn_fd, server_cfg.read_buffer_size );
-    log_requester( conn_fd );
+//    log_requester( conn_fd );
     http_req_t req;
     parse_http_req( &req, req_string, &server_cfg );
 //    possibly error check ?

@@ -9,7 +9,6 @@
 
 #include "async_process.h"
 
-#include "logging.h"
 #include "serve_request.h"
 #include "../return_codes.h"
 #include <dc_utils/dlinked_list.h>
