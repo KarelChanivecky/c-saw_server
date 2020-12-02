@@ -55,11 +55,7 @@ void increase_handler_pool( dlinked_list * pool,
     }
 }
 
-void assess_pool_health( dlinked_list * handler_queue, server_config_t * server_cfg ) {
-    // needs to grow or decrease
 
-    // possibly loop through all handlers, count the idle ones and act appropriately
-}
 
 void get_async_cfg( async_configs * async_cfg, server_config_t * server_cfg ) {
     if ( sem_unlink( REQ_AVAILABLE_SEM ) == 1 && errno != ENOENT ) {
@@ -95,7 +91,6 @@ _Noreturn void serve( server_config_t * server_cfg, int listen_socket_fd ) {
     printf("Serving model: pool\n");
     async_configs async_cfg;
     get_async_cfg( &async_cfg, server_cfg );
-//    dlinked_list * req_queue = async_cfg.req_queue; to be used in elastic pool
 
     void (* put_req_fd)( int, async_configs * );
     async_func_maker_t * async_func_maker;

@@ -80,7 +80,7 @@ char * get_request_string( int conn_fd, size_t buffer_size ) {
     return req_string;
 }
 
-int write_res_string( int conn_fd, uint8_t * res_string, size_t response_len, size_t write_buffer_size ) {
+int write_res_string( int conn_fd, uint8_t * res_string, size_t response_len ) {
     size_t bytes_written = write( conn_fd, res_string, response_len + 1 );
     if ( bytes_written != response_len + 1 ) {
         return BYTES_WRITTEN_MISS_MATCH;
@@ -113,7 +113,7 @@ void * serve_request( void * v_args ) {
     }
 
 
-    if ( write_res_string( conn_fd, res_string, body_len, server_cfg.write_buffer_size )
+    if ( write_res_string( conn_fd, res_string, body_len )
 
          ==
          BYTES_WRITTEN_MISS_MATCH
