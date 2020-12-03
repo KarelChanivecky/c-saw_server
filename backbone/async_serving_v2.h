@@ -12,6 +12,7 @@
 #include <dc_utils/dlinked_list.h>
 #include <semaphore.h>
 #include "../server_config.h"
+#include <pthread.h>
 
 typedef union handler_id {
     pthread_t t;

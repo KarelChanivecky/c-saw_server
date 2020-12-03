@@ -9,6 +9,7 @@
 #include <curses.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <libconfig.h>
@@ -131,7 +132,7 @@ int main(){
                 break;
             }
             // handle backspace
-            if (ch == 127 || ch == 8) {
+            if (ch == 127 || ch == 8 || ch == KEY_BACKSPACE) {
                 if (move_pos <= positions[pos]+1) {
                     --move_pos;
                     continue;
