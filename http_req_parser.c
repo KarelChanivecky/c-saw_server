@@ -10,7 +10,7 @@
 #define BLOCK_FOR_REQUEST_LINE 17
 #define AUTH "Authorization"
 #define IF_MODIFIED_SINCE "If-Modified-Since"
-#define FROM "From"
+#define FROM "from"
 #define REFERER "Referer"
 #define USER_AGENT "User-Agent"
 #define SIMPLE_REQUEST "Simple-Request"

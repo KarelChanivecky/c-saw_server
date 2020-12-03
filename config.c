@@ -80,21 +80,3 @@ int get_config( server_config_t * server_cfgs, int argc, char ** argv ) {
     free( args );
     return EXIT_SUCCESS;
 }
-
-
-//int main(int argc, char** argv) {
-//    struct server_config_t* server_cfgs = malloc(sizeof(server_config_t));
-//    get_config(server_cfgs, argc, argv);
-//    printf("%d\n", server_cfgs->port);
-//    printf("%d\n", server_cfgs->sin_family);
-//    printf("%d\n", server_cfgs->addr);
-//    printf("%d\n", server_cfgs->max_concurrent_conn);
-//    printf("%d\n", server_cfgs->max_open_conn);
-//    printf("%d\n", server_cfgs->read_buffer_size);
-//    printf("%d\n", server_cfgs->log_connections);
-//    printf("%d\n", server_cfgs->concurrency_model);
-//    printf("%s\n", server_cfgs->content_root_dir_path);
-//    printf("%s\n", server_cfgs->page_404_path);
-//    free(server_cfgs);
-//    return EXIT_SUCCESS;
-//}

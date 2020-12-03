@@ -38,8 +38,6 @@ char** get_args(int argc, char **argv){
         {
             case 'a':
             {
-//                    args[0] = malloc((int)(strlen(optarg)+1)*sizeof(char));
-//                    strcpy(args[0], optarg);
                 args[0] = optarg;
                 break;
             }

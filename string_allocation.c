@@ -126,7 +126,6 @@ char * read_fd( int fd, size_t * body_len ) {
         bytes_read = dc_read( fd, buffer, DEFAULT_BUFFER_SIZE );
         total_bytes_read += bytes_read;
     }
-    printf("\n");
     req_string[ total_bytes_read ] = 0;
     *body_len = total_bytes_read;
     dc_close(fd);

@@ -31,7 +31,7 @@ int check_method( http_req_t * req ) {
 
 
 #define DATE_FORMAT_OTH_1 "%A, %d-%b-%y %T"
-#define DATE_FORMAT_OTH_2 "%a %b  %d %T $Y"
+#define DATE_FORMAT_OTH_2 "%a %b  %d %T %Y"
 
 #define HTTP_TIME 0
 #define OTH_1_TIME 1
@@ -61,7 +61,9 @@ bool check_modified_since( http_req_t * req ) {
         return true;
     }
     struct stat file_stat;
-    stat( req->request_URI, &file_stat );
+    if (stat( req->request_URI, &file_stat ) == -1) {
+
+    }
 
     struct tm since_time_tm;
 

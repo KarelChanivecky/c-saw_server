@@ -8,7 +8,6 @@
 
 
 #include "async_threading.h"
-#include "logging.h"
 #include "serve_request.h"
 #include <dc_utils/dlinked_list.h>
 #include <dc/stdlib.h>

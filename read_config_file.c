@@ -49,13 +49,3 @@ int read_confg_file(server_config_t * server_cfgs){
     config_destroy(&cfg);
     return EXIT_SUCCESS;
 }
-
-//int main(int argc, char** argv) {
-//    struct server_config_t* server_cfgs = malloc(sizeof(server_config_t));
-//    printf("Before getting configs\n");
-//    read_confg_file(server_cfgs);
-//    printf("After getting configs\n");
-//
-//    free(server_cfgs);
-//    return EXIT_SUCCESS;
-//}

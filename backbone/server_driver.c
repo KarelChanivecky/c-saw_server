@@ -14,7 +14,6 @@
 #include "async_serving_v2.h"
 
 #include <dc/sys/socket.h>
-#include "logging.h"
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -48,7 +47,7 @@ void start_server( server_config_t * server_cfg ) {
     int listen_socket_fd = get_socket( server_cfg );
     printf( "Listener socket opened\n" );
     dc_listen( listen_socket_fd, server_cfg->max_open_conn );
-    printf( "Listening....\n" );
+    printf( "Listening on port: %d \n", server_cfg->port );
     serve(server_cfg, listen_socket_fd);
 }
 
