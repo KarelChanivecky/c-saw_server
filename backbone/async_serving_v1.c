@@ -9,7 +9,6 @@
 
 #include "async_serving_v1.h"
 
-#include "logging.h"
 #include "serve_request.h"
 #include <dc/semaphore.h>
 #include <dc/stdlib.h>
