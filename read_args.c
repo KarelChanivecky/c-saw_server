@@ -89,24 +89,7 @@ char** get_args(int argc, char **argv){
            default:
              abort ();
            }
-    
-//        for(int i = 0; i < 10; i++)
-//            if(args[i] != NULL)
-//                printf("arg[%d]: %s\n", i, args[i]);
+
     
     return args;
 }
-    
-//    int main(int argc, char** argv){
-//        char** args = get_args(argc, argv);
-//        for(int i = 0; i < 10; i++)
-//            if(args[i] != NULL)
-//                printf("arg[%d]: %s\n", i, args[i]);
-//
-////        for(int j = 0; j < 10; j++)
-////            free(args[j]);
-//        free(args);
-//
-//
-//        return 0;
-//    }

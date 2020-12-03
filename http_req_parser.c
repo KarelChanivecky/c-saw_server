@@ -142,21 +142,3 @@ int parse_http_req( http_req_t * req, char * req_string, server_config_t * serve
     return SUCCESS;
 }
 
-//int main(int argc, char * argv[]) {
-//    struct http_req_t http_req_t;
-//    char str[] ="GET /home.html HTTP/1.1\nHost: developer.mozilla.org\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\nAccept-Language: en-US,en;q=0.5";
-//    int result = parse_http_req(&http_req_t, str);
-//    switch(result){
-//        case 0:
-//            printf("method : %s\n",http_req_t.method);
-//            printf("user_agent : %s\n",http_req_t.user_agent);
-//            break;
-//        case METHOD_ERROR:
-//            printf("Incorrect get method.\n");
-//            break;
-//        case INVALID_URI:
-//            printf("BAD REQUEST_URI.\n");
-//            break;
-//    }
-//}
-

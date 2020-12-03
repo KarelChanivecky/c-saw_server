@@ -13,9 +13,6 @@
 //#include "async_serving_v1.h"
 #include "async_serving_v2.h"
 
-
-
-
 #include <dc/sys/socket.h>
 #include "logging.h"
 
