@@ -63,7 +63,7 @@ char ** tokenize_string( char * line, const char * delim, int i ) {
 }
 
 char ** dynamic_tokenize_req( char * req, int delimeter_len ) {
-    int index = 0;
+
     int block = DEFAULT_INITIAL_TOKEN_ALLOC_COUNT;
 
     size_t line_len = strcspn( req, "\r\n" );
@@ -75,12 +75,14 @@ char ** dynamic_tokenize_req( char * req, int delimeter_len ) {
     char * token = dc_malloc( sizeof( char ) * ( line_len + 1 ));
     strncpy( token, req, line_len );
     token[line_len] = '\0';
-
+    int index = 0;
     while ( token != NULL) {
         args[index] = token;
         index++;
 
+
         if ( index >= block - 1 ) {
+
             block += DEFAULT_INITIAL_TOKEN_ALLOC_COUNT;
             args = realloc( args, block * sizeof( char * ));
             if ( !args ) {
@@ -99,6 +101,7 @@ char ** dynamic_tokenize_req( char * req, int delimeter_len ) {
             token[line_len] = '\0';
         }
     }
+
     args[index] = NULL;
     return args;
 }
@@ -126,7 +129,6 @@ char * read_fd( int fd, size_t * body_len ) {
         bytes_read = dc_read( fd, buffer, DEFAULT_BUFFER_SIZE );
         total_bytes_read += bytes_read;
     }
-    printf("\n");
     req_string[ total_bytes_read ] = 0;
     *body_len = total_bytes_read;
     dc_close(fd);

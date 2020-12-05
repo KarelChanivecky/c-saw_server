@@ -28,14 +28,18 @@
 
 
 async_handler_args * make_process( async_configs * async_cfg, async_func_t async_func ) {
+    pid_t pid = fork();
+    if (pid == -1) {
+        fprintf(stderr, "Forking error %s", strerror(errno));
+    }
     async_handler_args * args = ( async_handler_args * ) dc_malloc( sizeof( async_handler_args ));
+    args->id.p = pid;
     args->get_req_fd = async_cfg->get_req_fd;
-//    args->free_threads = async_cfg->free_threads;
+//    args->free_threads = async_cfg->free_threads; // for elastic server expansion
     args->concurrent_conn_sem = async_cfg->concurrent_conn_sem;
     args->req_avail_sem = async_cfg->req_avail_sem;
     args->server_cfg = async_cfg->server_cfg;
     args->req_queue = NULL;
-    args->id.p = fork();
     args->listening_pass_fd_sem = async_cfg->listening_pass_fd_sem;
     if ( args->id.p == 0 ) {
         async_func( args );

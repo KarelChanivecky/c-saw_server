@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <dc/unistd.h>
 
 #define BYTES_WRITTEN_MISS_MATCH -1
 #define READ_ALLOC_COEFF 8
@@ -50,7 +49,10 @@ void increase_handler_pool( dlinked_list * pool,
                             async_configs * async_cfg,
                             async_func_maker_t async_func_maker, async_func_t async_func ) {
     for ( int i = 0; i < POOL_INCREASE_COUNT; i++ ) {
-        dlinked_push( pool, async_func_maker( async_cfg, async_func ));
+        async_handler_args * async_handler = async_func_maker( async_cfg, async_func );
+        if (async_handler) {
+            dlinked_push( pool, async_handler);
+        }
     }
 }
 
@@ -88,6 +90,7 @@ void get_async_cfg( async_configs * async_cfg, server_config_t * server_cfg ) {
 
 _Noreturn void serve( server_config_t * server_cfg, int listen_socket_fd ) {
     printf("Serving model: pool\n");
+    printf("Concurrency model: %s\n", server_cfg->concurrency_model == THREAD ? "threads" : "processes");
     async_configs async_cfg;
     get_async_cfg( &async_cfg, server_cfg );
 
@@ -105,8 +108,7 @@ _Noreturn void serve( server_config_t * server_cfg, int listen_socket_fd ) {
     increase_handler_pool( handler_pool, &async_cfg, async_func_maker, async_handling_procedure );
 
     while ( SERVING ) {
-        sem_wait( async_cfg.concurrent_conn_sem );
-
+        dc_sem_wait( async_cfg.concurrent_conn_sem );
         int new_conn = dc_accept( listen_socket_fd, NULL, NULL);
         put_req_fd( new_conn, &async_cfg );
 

@@ -18,8 +18,22 @@
 #include <semaphore.h>
 #include <stdio.h>
 #include <errno.h>
-#include "unistd.h"
+#include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 
+void log_requester( int client_fd ) {
+    struct sockaddr_in client;
+    socklen_t addr_size = sizeof( client );
+    int status = getpeername( client_fd, ( struct sockaddr * ) &client, &addr_size );
+    if ( status == -1 ) {
+        fprintf( stderr, "Logging error. Could not get peer info\n" );
+        return;
+    }
+    char client_ip[20];
+    strcpy( client_ip, inet_ntoa( client.sin_addr ));
+    printf( "\nREQUESTER:\nip: %s\nport: %d", client_ip, client.sin_port );
+}
 
 void free_http_req( http_req_t * req ) {
     if ( req->if_modified_since ) {
@@ -88,27 +102,26 @@ int write_res_string( int conn_fd, uint8_t * res_string, size_t response_len ) {
 }
 
 void * serve_request( void * v_args ) {
+
     req_thread_args_t args = *( req_thread_args_t * ) v_args;
     sem_t * concurrent_conn_sem = args.sem;
     server_config_t server_cfg = args.server_cfg;
 
     int conn_fd = args.conn_fd;
     char * req_string = get_request_string( conn_fd, server_cfg.read_buffer_size );
-//    log_requester( conn_fd );
     http_req_t req;
     parse_http_req( &req, req_string, &server_cfg );
-//    possibly error check ?
+
     size_t body_len = 0;
     http_res_t res;
 
     handle_req( &req, &res, &server_cfg, &body_len );
-//    possibly error check ?
 
     uint8_t * res_string = http_res_encode( &res, &body_len );
     if ( server_cfg.log_connections ) {
+        log_requester(conn_fd);
         printf( "\nREQUEST\n%s\n", req_string );
         printf( "\nRESPONSE\n%s\n", res_string );
-//        log_action( conn_fd, &req, &res );
     }
 
 

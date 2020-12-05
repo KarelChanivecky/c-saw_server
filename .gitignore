@@ -57,3 +57,5 @@ http_response_diagram.odg
 
 /build
 build/
+/cmake-build-debug-coverage/
+/gcov/
