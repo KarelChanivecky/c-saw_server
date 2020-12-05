@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <in.h>
 
 void log_requester( int client_fd ) {
     struct sockaddr_in client;
