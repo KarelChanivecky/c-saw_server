@@ -102,6 +102,7 @@ int write_res_string( int conn_fd, uint8_t * res_string, size_t response_len ) {
 }
 
 void * serve_request( void * v_args ) {
+
     req_thread_args_t args = *( req_thread_args_t * ) v_args;
     sem_t * concurrent_conn_sem = args.sem;
     server_config_t server_cfg = args.server_cfg;

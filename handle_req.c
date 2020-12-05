@@ -40,7 +40,7 @@ int prepare_get_head_response( http_req_t * req, http_res_t * res, server_config
         res->last_modified = make_last_modified( req->request_URI );
         res->content_length = make_content_length( req->request_URI );
         res->content_type = make_content_type( req->request_URI );
-        res->expires = get_expires( server_cfg->page_expiration_time_mins );
+       res->expires = get_expires( server_cfg->page_expiration_time_mins );
     } else {
         status = STATUS_NOT_FOUND;
         path = server_cfg->page_404_path;
