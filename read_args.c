@@ -20,7 +20,7 @@ char** get_args(int argc, char **argv){
         {"open_conn", required_argument, 0, 'e'},
         {"read_buffer_size", required_argument, 0, 'f'},
         {"log_connections", required_argument, 0, 'g'},
-        {"conncurrency_model", required_argument, 0, 'h'},
+        {"concurrency_model", required_argument, 0, 'h'},
         {"root_dir", required_argument, 0, 'i'},
         {"page_404", required_argument, 0, 'j'},
         {"write_buffer_size", required_argument, 0, 'k'},
@@ -78,7 +78,6 @@ char** get_args(int argc, char **argv){
                 args[12] = optarg;
                 break;
            case '?':
-//                    fprintf (stderr, "Option -%c requires an argument.\n", optopt);
                 if (isprint (optopt))
                     fprintf (stderr, "Unknown option `-%c'.\n", optopt);
                 else

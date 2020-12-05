@@ -80,7 +80,9 @@ char ** dynamic_tokenize_req( char * req, int delimeter_len ) {
         args[index] = token;
         index++;
 
-        if ( index >= block - 1  ) {
+
+        if ( index >= block - 1 ) {
+
             block += DEFAULT_INITIAL_TOKEN_ALLOC_COUNT;
             args = realloc( args, block * sizeof( char * ));
             if ( !args ) {
@@ -99,8 +101,8 @@ char ** dynamic_tokenize_req( char * req, int delimeter_len ) {
             token[line_len] = '\0';
         }
     }
-    args[index]  = NULL;
 
+    args[index] = NULL;
     return args;
 }
 
