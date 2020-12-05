@@ -199,9 +199,9 @@ int main(){
     
     print_final_msg(height, width);
     
-    for (int i = 0; i < 11; i++) {
+    for (int i = 0; i < NUM_CONFIGS; i++) {
         free(output[i]);
-//        free(previous_values[i]);
+        free(previous_values[i]);
     }
     free(output);
     free(previous_values);
@@ -304,7 +304,7 @@ char** read_confg_file(config_t* cfg, server_config_t * server_cfgs, int width){
         fprintf(stderr, "%s:%d - %s\n", config_error_file(cfg),
             config_error_line(cfg), config_error_text(cfg));
         config_destroy(cfg);
-        return(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     int port;
@@ -338,29 +338,36 @@ char** read_confg_file(config_t* cfg, server_config_t * server_cfgs, int width){
     int page_expiration_time_mins;
     if(config_lookup_int(cfg, "page_expiration_time_mins", &page_expiration_time_mins) == CONFIG_TRUE)
         sprintf(previous_values[7], "%d", page_expiration_time_mins);
-    
-    bool log_connections;
+
+    char* true_val = "true";
+    char* false_val = "false";
+    int log_connections;
     if(config_lookup_bool(cfg, "log_connections", &log_connections) == CONFIG_TRUE){
-        if (log_connections) previous_values[8] = "true";
-        else previous_values[8] = "false";
+        if (log_connections) strcpy(previous_values[8], true_val);
+        else strcpy(previous_values[8], false_val);
     }
     
     
-    bool concurrency_model;
+    int concurrency_model;
     if(config_lookup_bool(cfg, "concurrency_model", &concurrency_model) == CONFIG_TRUE){
-        if (concurrency_model) previous_values[9] = "true";
-        else previous_values[9] = "false";
+        if (concurrency_model) strcpy(previous_values[9], true_val);
+        else strcpy(previous_values[9], false_val);
     }
     
-    bool pooled;
+    int pooled;
     if(config_lookup_bool(cfg, "pooled", &pooled) == CONFIG_TRUE){
-        if (pooled) previous_values[10] = "true";
-        else previous_values[10] = "false";
+        if (pooled) strcpy(previous_values[10], true_val);
+        else strcpy(previous_values[10], false_val);
     }
-    
-    config_lookup_string(cfg, "content_root_dir_path", &previous_values[11]);
-    config_lookup_string(cfg, "page_404_path", &previous_values[12]);
-    
+
+    char * root_dir_path;
+    char * path_404;
+
+    config_lookup_string(cfg, "content_root_dir_path", &root_dir_path);
+    config_lookup_string(cfg, "page_404_path", &path_404);
+
+    strcpy(previous_values[11], root_dir_path);
+    strcpy(previous_values[12], path_404);
 
     
     return previous_values;
