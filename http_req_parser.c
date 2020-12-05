@@ -39,7 +39,7 @@ int tokenize_header( char * container[], char * req_string, const char * delimit
         return INVALID_HEADER_FIELD;
     }
 
-    char * buffer;
+    char * buffer = NULL;
     buffer = strtok( req_string, delimiter );
     container[FIELD_NAME_INDEX] = alloc_string( buffer );
 
