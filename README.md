@@ -34,7 +34,7 @@ if-modified-since does not take into account time zone differences
     1) default value: 1
     2) command line flag: ```--log_connections```
     
-8) concurrency_model:
+8) concurrency_model: 1 for processes, 0 for threads
     1) default value: 1
     2) command line flag: ```--concurrency_model```
     
